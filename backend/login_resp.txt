@@ -1,0 +1,1 @@
+﻿{"timestamp":"2025-10-25T20:26:08.830+00:00","status":403,"error":"Forbidden","path":"/auth/login"}

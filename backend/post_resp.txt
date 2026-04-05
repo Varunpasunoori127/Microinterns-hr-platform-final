@@ -1,0 +1,8 @@
+﻿curl.exe : curl: (2) no URL specified
+At line:1 char:1
++ curl.exe -v -u admin@example.com:adminpass -H 'Content-Type: applicat ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (curl: (2) no URL specified:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+curl: try 'curl --help' for more information

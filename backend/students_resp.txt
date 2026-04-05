@@ -1,0 +1,59 @@
+﻿curl.exe : * Host localhost:8080 was resolved.
+At line:1 char:1
++ curl.exe -v http://localhost:8080/students 2>&1 | Out-File -Encoding  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (* Host localhost:8080 was resolved.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8080...
+* Connected to localhost (::1) port 8080
+* using HTTP/1.x
+> GET /students HTTP/1.1
+
+> Host: localhost:8080
+
+> User-Agent: curl/8.13.0
+
+> Accept: */*
+
+> 
+
+* Request completely sent off
+< HTTP/1.1 200 
+
+< Vary: Origin
+
+< Vary: Access-Control-Request-Method
+
+< Vary: Access-Control-Request-Headers
+
+< X-Content-Type-Options: nosniff
+
+< X-XSS-Protection: 0
+
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+
+< Pragma: no-cache
+
+< Expires: 0
+
+< X-Frame-Options: SAMEORIGIN
+
+< Content-Type: application/json
+
+< Transfer-Encoding: chunked
+
+< Date: Sat, 25 Oct 2025 20:27:35 GMT
+
+< 
+
+{ [89 bytes data]
+
+100    83    0    83    0     0   1020      0 --:--:-- --:--:-- --:--:--  1024
+* Connection #0 to host localhost left intact
+[{"id":1,"name":"Alice","org":"Acme","status":"ACTIVE","caseOwner":{"name":"HR1"}}]

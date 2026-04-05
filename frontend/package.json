@@ -1,0 +1,23 @@
+{
+  "name": "microinterns-hr-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@react-oauth/google": "^0.13.4",
+    "axios": "^1.13.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.19.0",
+    "react-select": "^5.10.2"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "baseline-browser-mapping": "^2.10.12",
+    "vite": "^5.1.0"
+  }
+}

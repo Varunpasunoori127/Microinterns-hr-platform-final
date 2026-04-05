@@ -1,0 +1,67 @@
+﻿curl.exe : Note: Unnecessary use of -X or --request, POST is already inferred.
+At line:1 char:1
++ curl.exe -v -H 'Content-Type: application/json' -X POST http://localh ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Note: Unnecessa...ready inferred.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+* Host localhost:8080 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8080...
+* Connected to localhost (::1) port 8080
+* using HTTP/1.x
+> POST /auth/login HTTP/1.1
+
+> Host: localhost:8080
+
+> User-Agent: curl/8.13.0
+
+> Accept: */*
+
+> Content-Type: application/json
+
+> Content-Length: 52
+
+> 
+
+} [52 bytes data]
+* upload completely sent off: 52 bytes
+< HTTP/1.1 403 
+
+< Vary: Origin
+
+< Vary: Access-Control-Request-Method
+
+< Vary: Access-Control-Request-Headers
+
+< Set-Cookie: XSRF-TOKEN=7bdb4b9f-34d7-47a1-a2c2-d2d2d367c412; Path=/
+
+< X-Content-Type-Options: nosniff
+
+< X-XSS-Protection: 0
+
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+
+< Pragma: no-cache
+
+< Expires: 0
+
+< X-Frame-Options: SAMEORIGIN
+
+< Content-Type: application/json
+
+< Transfer-Encoding: chunked
+
+< Date: Sat, 25 Oct 2025 20:27:17 GMT
+
+< 
+
+{ [105 bytes data]
+
+100   151    0    99  100    52  11844   6221 --:--:-- --:--:-- --:--:-- 18875
+* Connection #0 to host localhost left intact
+{"timestamp":"2025-10-25T20:27:17.606+00:00","status":403,"error":"Forbidden","path":"/auth/login"}
