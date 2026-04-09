@@ -65,7 +65,7 @@ export default function StudentOnboardingPage() {
   const loggedUser = JSON.parse(localStorage.getItem("microinterns_user"));
   const displayEmail = studentEmail || loggedUser?.email || "";
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const API_URL = import.meta.env.VITE_API_URL 
 
   /* ================= FETCH TOKEN ================= */
   useEffect(() => {

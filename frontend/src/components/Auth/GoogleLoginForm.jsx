@@ -16,12 +16,12 @@ export default function GoogleLoginButton() {
       }
 
       // Send credential to backend
-      const response = await fetch("http://localhost:8080/student-auth/google", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/student-auth/google`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ credential })
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ credential })
       });
 
       if (!response.ok) {

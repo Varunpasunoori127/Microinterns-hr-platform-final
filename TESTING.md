@@ -25,7 +25,7 @@ mvn -DskipTests=true clean package
 java -jar target/hrplatform-0.0.1-SNAPSHOT.jar
 ```
 
-Backend will start on: **http://localhost:8080**
+Backend will start on: import.meta.env.VITE_API_URL ✅
 
 ### 2. Start the Frontend
 
@@ -75,7 +75,7 @@ The application now uses **JWT (JSON Web Tokens)** for stateless authentication 
 1. **Login** via frontend at `http://localhost:5173/login` or API:
 
 ```bash
-curl -X POST http://localhost:8080/auth/login \
+curl -X import.meta.env.VITE_API_URL ✅\
   -H "Content-Type: application/json" \
   -d '{"email":"hr1@example.com","password":"hrpass"}'
 ```

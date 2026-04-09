@@ -69,7 +69,7 @@ This is the frontend application for the MicroInterns HR Platform, developed as 
 ## Environment Variables
 
 Create a `.env` file inside the `frontend` folder:
-VITE_API_URL=http://localhost:8080
+import.meta.env.VITE_API_URL ✅
 
 
 ## Installation
