@@ -1,7 +1,15 @@
-FROM eclipse-temurin:17-jre-jammy
-ARG JAR_FILE=target/*.jar
+# ---------- BUILD STAGE ----------
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY ${JAR_FILE} app.jar
+COPY . .
+RUN mvn clean package -DskipTests
+
+# ---------- RUN STAGE ----------
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
+
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar"]
