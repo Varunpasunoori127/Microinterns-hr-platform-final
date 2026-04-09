@@ -53,17 +53,24 @@ export default function GoogleLoginButton() {
   };
 
   return (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "20px",
+      width: "100%",
+      marginTop: "20px"
+    }}
+  >
     <GoogleLogin
       onSuccess={handleSuccess}
       onError={() => console.log("Google Login Failed")}
       useOneTap={false}
+      theme="outline"
+      size="large"
+      text="continue_with"
+      shape="pill"
     />
-  );
-}
-
-<div style={{
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "20px"
-}}></div>
+  </div>
+)};
