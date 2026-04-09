@@ -2,6 +2,8 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
 export default function GoogleLoginButton() {
+  console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  console.log("ORIGIN:", window.location.origin);
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {

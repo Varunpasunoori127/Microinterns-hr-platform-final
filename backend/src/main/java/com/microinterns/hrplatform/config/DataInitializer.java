@@ -1,106 +1,72 @@
 package com.microinterns.hrplatform.config;
 
-import com.microinterns.hrplatform.models.Case;
-import com.microinterns.hrplatform.models.HRUser;
-import com.microinterns.hrplatform.models.Student;
-import com.microinterns.hrplatform.repositories.CaseRepository;
-import com.microinterns.hrplatform.repositories.HRUserRepository;
-import com.microinterns.hrplatform.repositories.StudentRepository;
+import com.microinterns.hrplatform.models.Mentor;
+import com.microinterns.hrplatform.models.MentorSkill;
+import com.microinterns.hrplatform.repositories.MentorRepository;
+import com.microinterns.hrplatform.repositories.MentorSkillRepository;
+
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class DataInitializer implements CommandLineRunner {
+@Configuration
+public class DataInitializer {
 
-    private final StudentRepository studentRepository;
-    private final CaseRepository caseRepository;
-    private final HRUserRepository hrUserRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Bean
+    CommandLineRunner initData(MentorRepository mentorRepo, MentorSkillRepository skillRepo) {
+        return args -> {
 
-    public DataInitializer(
-            StudentRepository studentRepository,
-            CaseRepository caseRepository,
-            HRUserRepository hrUserRepository,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.studentRepository = studentRepository;
-        this.caseRepository = caseRepository;
-        this.hrUserRepository = hrUserRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+            // ✅ Prevent duplicate data
+            if (mentorRepo.count() > 0) return;
 
-    @Override
-    public void run(String... args) throws Exception {
+            // =========================
+            // CREATE MENTORS
+            // =========================
+            Mentor m1 = new Mentor();
+            m1.setName("John Developer");
+            mentorRepo.save(m1);
 
-        // -----------------------------
-        // Seed login users if missing
-        // -----------------------------
-        HRUser hr = hrUserRepository.findByEmail("hr1@example.com").orElseGet(() -> {
-            HRUser user = new HRUser();
-            user.setName("HR1");
-            user.setEmail("hr1@example.com");
-            user.setRole("HR_ADMIN");
-            user.setPassword(passwordEncoder.encode("hrpassword")); // 10 chars
-            return hrUserRepository.save(user);
-        });
+            Mentor m2 = new Mentor();
+            m2.setName("Sarah Engineer");
+            mentorRepo.save(m2);
 
-        hrUserRepository.findByEmail("admin@example.com").orElseGet(() -> {
-            HRUser user = new HRUser();
-            user.setName("SuperAdmin");
-            user.setEmail("admin@example.com");
-            user.setRole("SUPER_ADMIN");
-            user.setPassword(passwordEncoder.encode("adminpass123")); // 12 chars
-            return hrUserRepository.save(user);
-        });
+            Mentor m3 = new Mentor();
+            m3.setName("David Analyst");
+            mentorRepo.save(m3);
 
-        hrUserRepository.findByEmail("varun@example.com").orElseGet(() -> {
-            HRUser user = new HRUser();
-            user.setName("Varun");
-            user.setEmail("varun@example.com");
-            user.setRole("SUPER_ADMIN");
-            user.setPassword(passwordEncoder.encode("varunpass123")); // 12 chars
-            return hrUserRepository.save(user);
-        });
+            // =========================
+            // ADD SKILLS
+            // =========================
 
-        // -----------------------------
-        // Seed sample students if missing
-        // -----------------------------
-        Student alice = studentRepository.findByEmail("alice@example.com").orElseGet(() -> {
-            Student s = new Student();
-            s.setName("Alice");
-            s.setEmail("alice@example.com");
-            s.setOrg("Acme");
-            s.setPhone("+1-555-0100");
-            s.setAddress("123 Acme St, Suite 100");
-            s.setDob("1998-07-12");
-            s.setAgreementAccepted(true);
-            s.setOnboardingStatus("IN_PROGRESS");
-            return studentRepository.save(s);
-        });
+            MentorSkill s1 = new MentorSkill();
+            s1.setMentorId(m1.getId());
+            s1.setSkill("java");
+            skillRepo.save(s1);
 
-        studentRepository.findByEmail("bob@example.com").orElseGet(() -> {
-            Student s = new Student();
-            s.setName("Bob");
-            s.setEmail("bob@example.com");
-            s.setOrg("Acme");
-            s.setOnboardingStatus("PENDING");
-            return studentRepository.save(s);
-        });
+            MentorSkill s2 = new MentorSkill();
+            s2.setMentorId(m1.getId());
+            s2.setSkill("spring");
+            skillRepo.save(s2);
 
-        // -----------------------------
-        // Seed case for Alice if missing
-        // -----------------------------
-        if (caseRepository.findAll().stream().noneMatch(c ->
-                c.getStudent() != null &&
-                c.getStudent().getId() != null &&
-                c.getStudent().getId().equals(alice.getId())
-        )) {
-            Case c = new Case();
-            c.setStudent(alice);
-            c.setOwner(hr);
-            c.setStatus(Case.CaseStatus.ACTIVE);
-            caseRepository.save(c);
-        }
+            MentorSkill s3 = new MentorSkill();
+            s3.setMentorId(m2.getId());
+            s3.setSkill("react");
+            skillRepo.save(s3);
+
+            MentorSkill s4 = new MentorSkill();
+            s4.setMentorId(m2.getId());
+            s4.setSkill("javascript");
+            skillRepo.save(s4);
+
+            MentorSkill s5 = new MentorSkill();
+            s5.setMentorId(m3.getId());
+            s5.setSkill("python");
+            skillRepo.save(s5);
+
+            MentorSkill s6 = new MentorSkill();
+            s6.setMentorId(m3.getId());
+            s6.setSkill("data analysis");
+            skillRepo.save(s6);
+        };
     }
 }

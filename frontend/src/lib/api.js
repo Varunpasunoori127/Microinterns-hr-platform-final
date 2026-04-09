@@ -18,6 +18,7 @@ export function clearToken() {
   localStorage.removeItem('token');
 }
 
+// ✅ CORE REQUEST (FIXED FOR DELETE)
 async function request(path, opts = {}) {
   const headers = opts.headers || {};
   const token = getToken();
@@ -32,18 +33,20 @@ async function request(path, opts = {}) {
     headers,
   });
 
-  // 🔥 DO NOT AUTO LOGOUT (IMPORTANT FIX)
+  // 🔥 AUTH DEBUG (NO AUTO REDIRECT)
   if (res.status === 401 || res.status === 403) {
     console.error("AUTH ERROR:", res.status);
-    // ❌ removed redirect
   }
 
+  // ❌ ERROR HANDLING
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || `Error ${res.status}`);
   }
 
-  return res.json();
+  // ✅ FIX: HANDLE EMPTY RESPONSE (DELETE)
+  const text = await res.text();
+  return text ? JSON.parse(text) : true;
 }
 
 // ✅ METHODS
@@ -67,8 +70,15 @@ export function put(path, body) {
   });
 }
 
+// ✅ DELETE (FIXED)
 export function del(path) {
   return request(path, { method: "DELETE" });
 }
 
-export default { get, post, put, del };
+// ✅ EXPORT
+export default {
+  get,
+  post,
+  put,
+  del
+};

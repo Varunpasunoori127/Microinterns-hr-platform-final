@@ -2,28 +2,29 @@ package com.microinterns.hrplatform.controllers;
 
 import com.microinterns.hrplatform.models.StudentSkill;
 import com.microinterns.hrplatform.repositories.StudentSkillRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/skills")
-@CrossOrigin
+@RequestMapping("/student-skills")
+@CrossOrigin // optional (safe for dev)
 public class StudentSkillController {
 
-    private final StudentSkillRepository repository;
+    @Autowired
+    private StudentSkillRepository studentSkillRepository;
 
-    public StudentSkillController(StudentSkillRepository repository) {
-        this.repository = repository;
-    }
-
-    @GetMapping("/{studentId}")
-    public List<StudentSkill> getSkills(@PathVariable Long studentId) {
-        return repository.findByStudentId(studentId);
-    }
-
+    // ✅ ADD SKILL
     @PostMapping
     public StudentSkill addSkill(@RequestBody StudentSkill skill) {
-        return repository.save(skill);
+        return studentSkillRepository.save(skill);
+    }
+
+    // ✅ GET SKILLS BY STUDENT ID
+    @GetMapping("/student/{studentId}")
+    public List<StudentSkill> getSkills(@PathVariable Long studentId) {
+        return studentSkillRepository.findByStudentId(studentId);
     }
 }

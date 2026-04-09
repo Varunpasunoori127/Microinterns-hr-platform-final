@@ -8,13 +8,11 @@
     <artifactId>hrplatform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>MicroInterns HR Platform</name>
-    <description>Spring Boot backend for MicroInterns HR onboarding/offboarding</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.0</version>
-        <relativePath/>
     </parent>
 
     <properties>
@@ -23,7 +21,7 @@
 
     <dependencies>
 
-        <!-- 🔥 CORE SPRING -->
+        <!-- 🔥 SPRING CORE -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -50,20 +48,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- 🔥 POSTGRES (PRODUCTION DATABASE) -->
+        <!-- 🟢 POSTGRES (SUPABASE) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope> <!-- 🔥 add this -->
         </dependency>
-
-        <!-- ❌ REMOVE H2 (NO LONGER NEEDED) -->
-        <!--
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        -->
 
         <!-- 🔐 JWT -->
         <dependency>

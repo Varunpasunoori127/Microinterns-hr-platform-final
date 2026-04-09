@@ -23,12 +23,12 @@ import Settings from "./pages/Settings";
 
 /* ONBOARDING */
 import OnboardingForm from "./pages/StudentOnboardingPage";
-
 import StudentSkillsPage from "./pages/StudentSkillsPage";
 
 function App() {
 
   console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -79,32 +79,10 @@ function App() {
           }
         />
 
-        {/* ONBOARDING (PUBLIC) */}
-        <Route
-          path="/onboarding"
-          element={
-            <MainLayout>
-              <OnboardingForm />
-            </MainLayout>
-          }
-        />
-
-        <Route
-          path="/onboarding/:token"
-          element={
-            <MainLayout>
-              <OnboardingForm />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/skills/:token"
-          element={
-           <MainLayout>
-             <StudentSkillsPage />
-           </MainLayout>
-          }
-        />
+        {/* ✅ ONBOARDING (NO NAVBAR — CLEAN UI) */}
+        <Route path="/onboarding" element={<OnboardingForm />} />
+        <Route path="/onboarding/:token" element={<OnboardingForm />} />
+        <Route path="/skills/:token" element={<StudentSkillsPage />} />
 
         {/* 🔒 PROTECTED DASHBOARD ROUTES */}
         <Route
@@ -116,15 +94,10 @@ function App() {
         >
 
           <Route path="/dashboard" element={<Dashboard />} />
-
           <Route path="/student/:id" element={<StudentDetails />} />
-
           <Route path="/match/:studentId" element={<MatchPage />} />
-
           <Route path="/mentors" element={<MentorPage />} />
-
           <Route path="/reports" element={<Reports />} />
-
           <Route path="/settings" element={<Settings />} />
 
         </Route>

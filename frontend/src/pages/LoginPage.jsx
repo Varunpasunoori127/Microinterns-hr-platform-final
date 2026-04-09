@@ -63,6 +63,7 @@ export default function LoginPage() {
       // ✅ SAVE TOKEN
       setToken(data.token);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", "HR");
       localStorage.setItem("microinterns_user", JSON.stringify(data));
 
       navigate("/dashboard", { replace: true });

@@ -1,73 +1,79 @@
-# MicroInterns HR — Frontend
+# MicroInterns HR Platform — Frontend
 
-This is the Vite + React frontend for the MicroInterns HR Portal.
+This is the frontend application for the MicroInterns HR Platform, developed as part of an MSc dissertation project. It provides a user-friendly interface for student onboarding, skill submission, and interaction with the mentor matching system.
 
-Overview
-- Built with React 18 and Vite.
-- Small SPA that talks to the backend API (see `VITE_API_URL`).
+---
 
-Prerequisites
-- Node.js >= 18 (tested with Node 20)
+## Overview
+
+- Built using **React 18** and **Vite**
+- Implements a Single Page Application (SPA)
+- Communicates with the Spring Boot backend via REST APIs
+- Designed with a modern and responsive UI
+
+---
+
+## Features
+
+- Student onboarding (multi-step form)
+- Google login for students
+- Skill submission interface
+- Mentor matching workflow integration
+- HR dashboard integration (via backend)
+
+---
+
+## Prerequisites
+
+- Node.js >= 18 (Node 20 recommended)
 - npm >= 9 (or yarn/pnpm)
 
-# MicroInterns HR — Frontend
+---
 
-This is the Vite + React frontend for the MicroInterns HR Portal.
+## Environment Variables
 
-Overview
-- React 18 + Vite. Small SPA that talks to the backend API.
+Create a `.env` file inside the `frontend` folder:
 
-Prerequisites
-- Node.js >= 18 (Node 20 recommended) and npm (>=9) or an alternative package manager.
+# MicroInterns HR Platform — Frontend
 
-Environment variables
-- `VITE_API_URL` — base URL for backend API (example: `http://localhost:8080`). See `frontend/.env.example` for a template.
+This is the frontend application for the MicroInterns HR Platform, developed as part of an MSc dissertation project. It provides a user-friendly interface for student onboarding, skill submission, and interaction with the mentor matching system.
 
-Common commands
-- Install dependencies
+---
+
+## Overview
+
+- Built using **React 18** and **Vite**
+- Implements a Single Page Application (SPA)
+- Communicates with the Spring Boot backend via REST APIs
+- Designed with a modern and responsive UI
+
+---
+
+## Features
+
+- Student onboarding (multi-step form)
+- Google login for students
+- Skill submission interface
+- Mentor matching workflow integration
+- HR dashboard integration (via backend)
+
+---
+
+## Prerequisites
+
+- Node.js >= 18 (Node 20 recommended)
+- npm >= 9 (or yarn/pnpm)
+
+---
+
+## Environment Variables
+
+Create a `.env` file inside the `frontend` folder:
+VITE_API_URL=http://localhost:8080
+
+
+## Installation
+
 ```bash
 cd frontend
-npm ci
-```
-
-- Run the development server (hot reload)
-```bash
-npm start
-# opens http://localhost:5173 by default
-```
-
-- Build for production
-```bash
-npm run build
-# outputs to dist/
-```
-
-- Preview the built app locally
-```bash
-npm run preview
-# preview served on port 4173 by default
-```
-
-Docker (production static hosting)
-- The `frontend/Dockerfile` builds the app and serves it with nginx with a small set of security headers. Example build:
-```bash
-docker build -t microinterns-hr-frontend:latest ./frontend
-docker run --rm -p 80:80 microinterns-hr-frontend:latest
-```
-
-CSRF & CORS notes
-- The frontend reads a cookie named `XSRF-TOKEN` (set by the backend) and sends it in the `X-XSRF-TOKEN` header for mutating requests (POST/PUT/DELETE).
-- If frontend and backend are on different origins, the backend must allow the frontend origin and allow credentials; frontend fetches should use `credentials: 'include'`.
-
-Production tips
-- Serve the built `dist/` behind a TLS-terminating reverse proxy or CDN.
-- Set `VITE_API_URL` to the production backend API URL at build time or provide it via environment injection in your hosting platform.
-
-Troubleshooting
-- If you run into CORS/cookie problems:
-  - Verify `VITE_API_URL` is correct.
-  - Verify backend `frontend.origin` includes the frontend origin and CORS allows credentials.
-  - Ensure cookies are not blocked by browser privacy settings.
-
-Next steps
-- Integrate the frontend with an authenticated backend (OIDC/SSO) and deploy both behind HTTPS.
+npm install

@@ -33,15 +33,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
+        System.out.println("JWT FILTER HIT: " + path);
 
-        // 🔥🔥 FIX: Skip JWT for ALL DEV endpoints
-        if (path.startsWith("/h2-console")
-                || path.startsWith("/students")   // ✅ IMPORTANT FIX
-                || path.startsWith("/auth")
-                || path.startsWith("/student-auth")
-                || path.startsWith("/error")) {
-
+        // 🔥 SKIP JWT FOR ALL PUBLIC ROUTES
+        if (
+            path.startsWith("/auth") ||
+            path.startsWith("/student-auth") ||
+            path.startsWith("/students") ||
+            path.startsWith("/match") ||
+            path.startsWith("/h2-console") ||
+            path.startsWith("/error")
+        ) {
             chain.doFilter(request, response);
             return;
         }
@@ -58,7 +61,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                logger.warn("JWT token extraction failed: " + e.getMessage());
+                System.out.println("JWT error: " + e.getMessage());
             }
         }
 

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-export default function StudentTable({ students, onReassign, onApprove }) {
+export default function StudentTable({ students, onReassign, onApprove, onView }) {
   const navigate = useNavigate();
 
   if (!students || students.length === 0) {
@@ -16,39 +16,66 @@ export default function StudentTable({ students, onReassign, onApprove }) {
 
   return (
     <div style={card}>
-      <h2 style={title}>Students</h2>
+      {/* HEADER */}
+      <div style={header}>
+        <h2 style={title}>Students</h2>
+        <span style={count}>{students.length} records</span>
+      </div>
 
       <table style={table}>
         <thead>
           <tr>
             <th style={th}>Name</th>
             <th style={th}>Email</th>
-            <th style={th}>Organisation</th>
+            <th style={th}>University</th> {/* ✅ CHANGED */}
             <th style={th}>Status</th>
-            <th style={th}>Mentor</th> {/* 🔥 UPDATED */}
+            <th style={th}>Mentor</th>
             <th style={th}>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {students.map((s) => (
-            <tr key={s.id} style={row}>
-
-              <td style={td} onClick={() => navigate(`/student/${s.id}`)}>
+          {students.map((s, index) => (
+            <tr
+              key={s.id}
+              style={{
+                ...row,
+                background: index % 2 === 0 ? "#ffffff" : "#fafafa",
+              }}
+              onClick={() => onView && onView(s.id)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.08)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.03)";
+              }}
+            >
+              <td style={{ ...td, fontWeight: 600 }}>
                 {s.name}
               </td>
 
-              <td style={td}>{s.email}</td>
+              <td style={td}>{s.email || "—"}</td>
 
-              <td style={td}>{s.org || s.organisation || "-"}</td>
+              {/* ✅ NEW UNIVERSITY + COURSE DISPLAY */}
+              <td style={td}>
+                <div style={{ fontWeight: 500 }}>
+                  {s.university || "—"}
+                </div>
+                {s.course && (
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                    {s.course}
+                  </div>
+                )}
+              </td>
 
               <td style={td}>
                 <span style={badge(s.status)}>
-                  {s.status || "N/A"}
+                  {(s.status || "N/A").replaceAll("_", " ")}
                 </span>
               </td>
 
-              {/* 🔥 MENTOR COLUMN */}
               <td style={td}>
                 {s.caseOwner?.name ? (
                   <span style={mentorBadge}>{s.caseOwner.name}</span>
@@ -57,9 +84,12 @@ export default function StudentTable({ students, onReassign, onApprove }) {
                 )}
               </td>
 
-              <td style={td}>
+              <td
+                style={{ ...td, borderRadius: "0 12px 12px 0" }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-
+                  
                   <button
                     style={btnSecondary}
                     onClick={() => navigate(`/student/${s.id}`)}
@@ -83,7 +113,6 @@ export default function StudentTable({ students, onReassign, onApprove }) {
                     </button>
                   )}
 
-                  {/* 🔥 APPROVE BUTTON */}
                   {s.status === "MATCHED" && onApprove && (
                     <button
                       style={btnApprove}
@@ -95,7 +124,6 @@ export default function StudentTable({ students, onReassign, onApprove }) {
 
                 </div>
               </td>
-
             </tr>
           ))}
         </tbody>
@@ -103,117 +131,155 @@ export default function StudentTable({ students, onReassign, onApprove }) {
     </div>
   );
 }
-
-/* 🎨 STYLES */
+/* ---------- STYLES ---------- */
 
 const card = {
   background: "white",
-  padding: 20,
-  borderRadius: 12,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+  padding: 24,
+  borderRadius: 16,
+  boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
+  border: "1px solid #f1f5f9",
+};
+
+const header = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 16,
+};
+
+const count = {
+  fontSize: 13,
+  color: "#64748b",
 };
 
 const title = {
-  fontSize: 20,
+  fontSize: 18,
   fontWeight: 700,
-  marginBottom: 20,
 };
 
 const table = {
   width: "100%",
-  borderCollapse: "collapse",
+  borderCollapse: "separate",
+  borderSpacing: "0 10px",
 };
 
 const th = {
   textAlign: "left",
-  padding: "12px 10px",
-  color: "#475569",
-  fontWeight: 700,
-  borderBottom: "1px solid #e2e8f0",
+  padding: "10px 14px",
+  color: "#64748b",
+  fontWeight: 600,
+  fontSize: 13,
 };
 
 const td = {
-  padding: "12px 10px",
+  padding: "14px 16px",
+  background: "white",
+  borderTop: "1px solid #f1f5f9",
   borderBottom: "1px solid #f1f5f9",
+  fontSize: 14,
   color: "#334155",
 };
 
 const row = {
-  transition: "0.2s",
+  transition: "all 0.2s ease",
+  cursor: "pointer",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
 };
 
-const badge = (status) => ({
-  padding: "5px 10px",
-  borderRadius: 8,
+const badge = (status) => {
+  if (!status) return baseBadge;
+
+  if (status.includes("COMPLETE")) return greenBadge;
+  if (status.includes("MATCH")) return blueBadge;
+  if (status.includes("PENDING")) return yellowBadge;
+  if (status.includes("PROGRESS")) return orangeBadge;
+
+  return baseBadge;
+};
+
+const baseBadge = {
+  padding: "6px 12px",
+  borderRadius: 999,
+  background: "#e5e7eb",
+  color: "#374151",
   fontSize: 12,
   fontWeight: 600,
-  background:
-    status === "ACTIVE"
-      ? "#dcfce7"
-      : status === "MATCHED"
-      ? "#dbeafe"
-      : "#fef3c7",
-  color:
-    status === "ACTIVE"
-      ? "#166534"
-      : status === "MATCHED"
-      ? "#1e40af"
-      : "#92400e",
-});
+};
+
+const greenBadge = {
+  ...baseBadge,
+  background: "#dcfce7",
+  color: "#166534",
+};
+
+const blueBadge = {
+  ...baseBadge,
+  background: "#dbeafe",
+  color: "#1e40af",
+};
+
+const yellowBadge = {
+  ...baseBadge,
+  background: "#fef3c7",
+  color: "#92400e",
+};
+
+const orangeBadge = {
+  ...baseBadge,
+  background: "#ffedd5",
+  color: "#c2410c",
+};
 
 const mentorBadge = {
-  padding: "5px 10px",
+  padding: "6px 12px",
   background: "#e0e7ff",
   color: "#3730a3",
-  borderRadius: 8,
+  borderRadius: 999,
   fontWeight: 600,
   fontSize: 12,
 };
 
 const unassigned = {
-  padding: "5px 10px",
+  padding: "6px 12px",
   background: "#f1f5f9",
   color: "#64748b",
-  borderRadius: 8,
+  borderRadius: 999,
   fontWeight: 600,
   fontSize: 12,
 };
 
+/* BUTTONS */
+
+const baseBtn = {
+  padding: "6px 12px",
+  borderRadius: 8,
+  fontSize: 12,
+  fontWeight: 600,
+  border: "none",
+  cursor: "pointer",
+};
+
 const btnPrimary = {
+  ...baseBtn,
   background: "#2563eb",
   color: "white",
-  border: "none",
-  padding: "6px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 12,
 };
 
 const btnSecondary = {
-  background: "#e2e8f0",
-  border: "none",
-  padding: "6px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 12,
+  ...baseBtn,
+  background: "#f1f5f9",
+  color: "#334155",
 };
 
 const btnDanger = {
+  ...baseBtn,
   background: "#ef4444",
   color: "white",
-  border: "none",
-  padding: "6px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 12,
 };
 
 const btnApprove = {
+  ...baseBtn,
   background: "#10b981",
   color: "white",
-  border: "none",
-  padding: "6px 10px",
-  borderRadius: 6,
-  cursor: "pointer",
-  fontSize: 12,
 };

@@ -1,32 +1,134 @@
-import { useParams, useNavigate } from "react-router-dom";
-import CaseTimeline from "../components/timeline/CaseTimeline";
-
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import api from "../lib/api";
 
 export default function StudentDetails() {
+
   const { id } = useParams();
-  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    api.get(`/students/${id}`)
+      .then(res => {
+        console.log("API RESPONSE:", res.data); // DEBUG
+        setData(res.data); // ✅ FIXED
+      })
+      .catch(() => alert("Failed to load"));
+  }, [id]);
+
+  if (!data) return <p>Loading...</p>;
+
+  // ✅ SAFE HANDLING (works for both backend formats)
+  const student = data.student || data;
+
+  const fields = [
+    { key: "phone", label: "Mobile Number" },
+    { key: "dob", label: "Date of Birth" },
+    { key: "nationality", label: "Nationality" },
+    { key: "gender", label: "Gender" },
+
+    { key: "address", label: "Address" },
+    { key: "city", label: "City" },
+    { key: "postcode", label: "Postcode" },
+
+    { key: "university", label: "University" },
+    { key: "course", label: "Course" },
+    { key: "year", label: "Year of Study" },
+
+    { key: "rightToWork", label: "Right to Work" },
+
+    { key: "emergencyContactName", label: "Emergency Contact Name" },
+    { key: "emergencyContactPhone", label: "Emergency Phone" },
+    { key: "emergencyContactRelation", label: "Relation" },
+
+    { key: "bankName", label: "Bank Name" },
+    { key: "bankAccountNumber", label: "Account Number" },
+    { key: "sortCode", label: "Sort Code" },
+    { key: "ifscCode", label: "IFSC Code" }
+  ];
 
   return (
-    <div style={{ padding: 30 }}>
-      <h1>👤 Student Details</h1>
+    <div style={styles.container}>
 
-      {/* later you can fetch and show student info here */}
-      <CaseTimeline events={timelineData} />
+      <div style={styles.card}>
 
+        <h2 style={styles.name}>{student.name || "—"}</h2>
+        <p style={styles.email}>{student.email || "—"}</p>
 
-      <button
-        style={{
-          marginTop: 20,
-          padding: "10px 15px",
-          background: "#2563eb",
-          color: "white",
-          borderRadius: 8,
-          cursor: "pointer",
-        }}
-        onClick={() => navigate(`/match/${id}`)}
-      >
-        Find Mentor →
-      </button>
+        <div style={styles.status}>
+          Status: <b>{student.onboardingStatus || "N/A"}</b>
+        </div>
+
+        <div style={styles.grid}>
+          {fields.map(f => (
+            <div key={f.key} style={styles.field}>
+              <div style={styles.label}>{f.label}</div>
+              <div style={styles.value}>
+                {student[f.key] ? student[f.key] : "—"}
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+
     </div>
   );
 }
+
+/* ================= STYLES ================= */
+
+const styles = {
+  container: {
+    padding: 30,
+    background: "#f8fafc",
+    minHeight: "100vh"
+  },
+
+  card: {
+    background: "white",
+    padding: 25,
+    borderRadius: 12,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.05)"
+  },
+
+  name: {
+    fontSize: 24,
+    fontWeight: 700,
+    marginBottom: 5
+  },
+
+  email: {
+    color: "#64748b",
+    marginBottom: 10
+  },
+
+  status: {
+    marginTop: 10,
+    background: "#e0f2fe",
+    padding: 10,
+    borderRadius: 6
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 15,
+    marginTop: 20
+  },
+
+  field: {
+    background: "#f8fafc",
+    padding: 12,
+    borderRadius: 8
+  },
+
+  label: {
+    fontSize: 13,
+    color: "#64748b"
+  },
+
+  value: {
+    fontWeight: 600
+  }
+};

@@ -10,10 +10,13 @@ public class MentorSkill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 🔥 IMPORTANT: matches DB column mentor_id
+    @Column(name = "mentor_id")
     private Long mentorId;
+
     private String skill;
 
-    // ✅ GETTERS
+    // GETTERS
     public Long getId() {
         return id;
     }
@@ -26,7 +29,7 @@ public class MentorSkill {
         return skill;
     }
 
-    // ✅ SETTERS
+    // SETTERS
     public void setId(Long id) {
         this.id = id;
     }

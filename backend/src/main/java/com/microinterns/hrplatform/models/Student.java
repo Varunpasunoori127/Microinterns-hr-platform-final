@@ -3,11 +3,9 @@ package com.microinterns.hrplatform.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-// 🔥 IMPORTANT IMPORT
-import com.microinterns.hrplatform.models.Mentor;
 
 @Entity
 @Table(name = "student")
@@ -17,6 +15,7 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ================= BASIC =================
     @NotBlank
     private String name;
 
@@ -24,50 +23,49 @@ public class Student {
     @NotBlank
     private String email;
 
-    private String org;
+    // ================= PERSONAL =================
     private String phone;
-    private String address;
     private String dob;
-    private Boolean agreementAccepted = false;
-    private String resumeFilename;
-    private String onboardingStatus;
+    private String nationality;
+    private String gender;
 
-    // Onboarding token
-    @Column(unique = true)
-    private String onboardingToken;
-    private LocalDateTime tokenExpiryDate;
-    private Boolean onboardingCompleted = false;
+    // ================= ADDRESS =================
+    private String address;
+    private String city;
+    private String postcode;
 
-    // Education details
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    // ================= EDUCATION =================
+    private String university;
+    private String course;
+    private String year;
     private String educationDetails;
 
-    // Work experience
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    // ================= WORK =================
+    private String rightToWork;
     private String workExperience;
 
-    // Documents
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String documents;
-
-    // Emergency contact
+    // ================= EMERGENCY =================
     private String emergencyContactName;
     private String emergencyContactPhone;
     private String emergencyContactRelation;
 
-    // Government IDs
-    private String nationalIdNumber;
-    private String passportNumber;
-
-    // Bank details
-    private String bankAccountNumber;
+    // ================= BANK =================
     private String bankName;
+    private String bankAccountNumber;
+    private String sortCode;
     private String ifscCode;
 
-    // 🔥 NEW: Mentor Assignment
+    // ================= SYSTEM =================
+    @Column(unique = true)
+    private String onboardingToken;
+
+    private LocalDateTime tokenExpiryDate;
+
+    private Boolean onboardingCompleted = false;
+
+    private String onboardingStatus;
+
+    // ================= MENTOR =================
     @ManyToOne
     @JoinColumn(name = "mentor_id")
     private Mentor mentor;
@@ -75,7 +73,6 @@ public class Student {
     // ================= GETTERS & SETTERS =================
 
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -83,44 +80,44 @@ public class Student {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getOrg() { return org; }
-    public void setOrg(String org) { this.org = org; }
-
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
 
     public String getDob() { return dob; }
     public void setDob(String dob) { this.dob = dob; }
 
-    public Boolean getAgreementAccepted() { return agreementAccepted; }
-    public void setAgreementAccepted(Boolean agreementAccepted) { this.agreementAccepted = agreementAccepted; }
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
 
-    public String getResumeFilename() { return resumeFilename; }
-    public void setResumeFilename(String resumeFilename) { this.resumeFilename = resumeFilename; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public String getOnboardingStatus() { return onboardingStatus; }
-    public void setOnboardingStatus(String onboardingStatus) { this.onboardingStatus = onboardingStatus; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 
-    public String getOnboardingToken() { return onboardingToken; }
-    public void setOnboardingToken(String onboardingToken) { this.onboardingToken = onboardingToken; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
-    public LocalDateTime getTokenExpiryDate() { return tokenExpiryDate; }
-    public void setTokenExpiryDate(LocalDateTime tokenExpiryDate) { this.tokenExpiryDate = tokenExpiryDate; }
+    public String getPostcode() { return postcode; }
+    public void setPostcode(String postcode) { this.postcode = postcode; }
 
-    public Boolean getOnboardingCompleted() { return onboardingCompleted; }
-    public void setOnboardingCompleted(Boolean onboardingCompleted) { this.onboardingCompleted = onboardingCompleted; }
+    public String getUniversity() { return university; }
+    public void setUniversity(String university) { this.university = university; }
+
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+
+    public String getYear() { return year; }
+    public void setYear(String year) { this.year = year; }
 
     public String getEducationDetails() { return educationDetails; }
     public void setEducationDetails(String educationDetails) { this.educationDetails = educationDetails; }
 
+    public String getRightToWork() { return rightToWork; }
+    public void setRightToWork(String rightToWork) { this.rightToWork = rightToWork; }
+
     public String getWorkExperience() { return workExperience; }
     public void setWorkExperience(String workExperience) { this.workExperience = workExperience; }
-
-    public String getDocuments() { return documents; }
-    public void setDocuments(String documents) { this.documents = documents; }
 
     public String getEmergencyContactName() { return emergencyContactName; }
     public void setEmergencyContactName(String emergencyContactName) { this.emergencyContactName = emergencyContactName; }
@@ -131,26 +128,30 @@ public class Student {
     public String getEmergencyContactRelation() { return emergencyContactRelation; }
     public void setEmergencyContactRelation(String emergencyContactRelation) { this.emergencyContactRelation = emergencyContactRelation; }
 
-    public String getNationalIdNumber() { return nationalIdNumber; }
-    public void setNationalIdNumber(String nationalIdNumber) { this.nationalIdNumber = nationalIdNumber; }
-
-    public String getPassportNumber() { return passportNumber; }
-    public void setPassportNumber(String passportNumber) { this.passportNumber = passportNumber; }
+    public String getBankName() { return bankName; }
+    public void setBankName(String bankName) { this.bankName = bankName; }
 
     public String getBankAccountNumber() { return bankAccountNumber; }
     public void setBankAccountNumber(String bankAccountNumber) { this.bankAccountNumber = bankAccountNumber; }
 
-    public String getBankName() { return bankName; }
-    public void setBankName(String bankName) { this.bankName = bankName; }
+    public String getSortCode() { return sortCode; }
+    public void setSortCode(String sortCode) { this.sortCode = sortCode; }
 
     public String getIfscCode() { return ifscCode; }
     public void setIfscCode(String ifscCode) { this.ifscCode = ifscCode; }
 
-    // 🔥 NEW: Mentor Getter/Setter
+    public String getOnboardingToken() { return onboardingToken; }
+
+    public Boolean getOnboardingCompleted() { return onboardingCompleted; }
+    public void setOnboardingCompleted(Boolean onboardingCompleted) { this.onboardingCompleted = onboardingCompleted; }
+
+    public String getOnboardingStatus() { return onboardingStatus; }
+    public void setOnboardingStatus(String onboardingStatus) { this.onboardingStatus = onboardingStatus; }
+
     public Mentor getMentor() { return mentor; }
     public void setMentor(Mentor mentor) { this.mentor = mentor; }
 
-    // ================= UTILITY METHODS =================
+    // ================= TOKEN =================
 
     public void generateOnboardingToken() {
         this.onboardingToken = UUID.randomUUID().toString();

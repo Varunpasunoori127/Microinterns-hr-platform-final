@@ -70,8 +70,8 @@ public class EmailService {
             String emailBody = String.format(
                 "Student: %s\nEmail: %s\nOrg: %s",
                 student.getName(),
-                student.getEmail(),
-                student.getOrg()
+                student.getEmail()
+                
             );
 
             message.setText(emailBody);

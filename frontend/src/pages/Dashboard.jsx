@@ -1,343 +1,428 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import StudentTable from "../components/Dashboard/StudentTable";
 import AddStudentForm from "../components/Dashboard/AddStudentForm";
-import api, { clearToken } from "../lib/api";
+import api from "../lib/api";
 
 /* ---------- STAT CARD ---------- */
 
 function StatCard({ title, value }) {
   return (
-    <div
-      style={{
-        background: "white",
-        padding: 24,
-        borderRadius: 12,
-        border: "1px solid #eef2f6",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.04)"
-      }}
-    >
+    <div style={statCard}>
       <div style={{ color: "#64748b", fontSize: 13 }}>{title}</div>
-
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 800,
-          marginTop: 6
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-/* ---------- SIDEBAR ITEM ---------- */
-
-function NavItem({ label, active }) {
-  return (
-    <div
-      style={{
-        padding: "10px 14px",
-        borderRadius: 8,
-        cursor: "pointer",
-        fontWeight: 600,
-        background: active ? "#2563eb" : "transparent",
-        color: active ? "white" : "#cbd5f5"
-      }}
-    >
-      {label}
+      <div style={{ fontSize: 28, fontWeight: 800 }}>{value}</div>
     </div>
   );
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  
 
   const [students, setStudents] = useState([]);
-  const [statusMsg, setStatusMsg] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const [mentors, setMentors] = useState([]);
+  const [selectedMentor, setSelectedMentor] = useState("");
+
+  const [matches, setMatches] = useState([]);
+  const [toast, setToast] = useState("");
+
+  /* ---------- LOAD ---------- */
 
   const loadStudents = () => {
-    setLoading(true);
+    api.get("/students").then((data) => setStudents(data || []));
+  };
 
-    api
-      .get("/students")
-      .then((data) => setStudents(data || []))
-      .catch((err) => {
-        console.error(err);
-        setStatusMsg({
-          type: "error",
-          msg: "Failed to load students"
-        });
-      })
-      .finally(() => setLoading(false));
+  const loadMentors = async () => {
+    try {
+      const res = await api.get("/mentors");
+      setMentors(res || []);
+    } catch {
+      setMentors([]);
+    }
   };
 
   useEffect(() => {
     loadStudents();
   }, []);
 
-  const handleReassign = async (studentId) => {
-    const toUserId = window.prompt("Enter target HR user id");
-    if (!toUserId) return;
+  /* ---------- OPEN MODAL ---------- */
+
+  const openStudent = async (id) => {
+    try {
+      const res = await api.get(`/students/${id}`);
+      setSelectedStudent(res);
+      setShowModal(true);
+
+      await loadMentors();
+
+      let matchRes = [];
+      try {
+        matchRes = await api.get(`/match/${id}`);
+        setMatches(matchRes || []);
+      } catch {
+        setMatches([]);
+      }
+
+      if (matchRes.length > 0) {
+        setSelectedMentor(matchRes[0].id);
+      }
+
+    } catch {
+      setToast("❌ Failed to load student");
+    }
+  };
+
+  /* ---------- ACTIONS ---------- */
+
+  const assignMentor = async () => {
+    if (!selectedMentor) return;
 
     try {
-      await api.put(
-        `/students/${studentId}/reassign?toUserId=${encodeURIComponent(
-          toUserId
-        )}`
-      );
+      await api.post("/match/assign", {
+        studentId: selectedStudent.student.id,
+        mentorId: selectedMentor,
+      });
 
+      setToast("✅ Mentor Assigned!");
       loadStudents();
+      setShowModal(false);
 
-      setStatusMsg({
-        type: "success",
-        msg: "Student reassigned successfully"
-      });
     } catch {
-      setStatusMsg({
-        type: "error",
-        msg: "Reassign failed"
-      });
+      setToast("❌ Assignment failed");
+    }
+  };
+
+  const approveStudent = async () => {
+    try {
+      await api.post(`/students/approve/${selectedStudent.student.id}`);
+      setToast("✅ Student Approved!");
+      loadStudents();
+    } catch {
+      setToast("❌ Approval failed");
+    }
+  };
+
+   const deleteStudent = async () => {
+  try {
+    const studentId = selectedStudent?.student?.id;
+
+    if (!studentId) {
+      setToast("❌ Invalid student ID");
+      return;
     }
 
-    setTimeout(() => setStatusMsg(null), 3000);
-  };
-  const handleApprove = async (studentId) => {
-  try {
-    await api.post(`/students/approve/${studentId}`);
+    await api.del(`/students/${studentId}`);
 
+    setToast("🗑️ Student Deleted!");
+
+    setShowModal(false);
     loadStudents();
 
-    setStatusMsg({
-      type: "success",
-      msg: "Student approved successfully"
-    });
-  } catch {
-    setStatusMsg({
-      type: "error",
-      msg: "Approval failed"
-    });
+  } catch (err) {
+    console.error(err);
+    setToast("❌ Delete failed");
   }
-
-  setTimeout(() => setStatusMsg(null), 3000);
 };
 
-  const signOut = () => {
-    clearToken();
-    localStorage.removeItem("microinterns_user");
-    navigate("/");
-  };
-
-  const user = (() => {
-    try {
-      const raw = localStorage.getItem("microinterns_user");
-      if (raw) {
-        const obj = JSON.parse(raw);
-        return obj.name || obj.email.split("@")[0];
-      }
-    } catch {}
-    return "HR";
-  })();
+  /* ---------- COUNTS ---------- */
 
   const total = students.length;
-  const pending = students.filter((s) =>
-    s.status?.toLowerCase().includes("pend")
-  ).length;
-  const active = students.filter((s) =>
-    s.status?.toLowerCase().includes("active")
-  ).length;
-  const completed = students.filter((s) =>
-    s.status?.toLowerCase().includes("complete")
-  ).length;
+  const pending = students.filter((s) => s.status?.includes("PEND")).length;
+  const active = students.filter((s) => s.status?.includes("ACTIVE")).length;
+  const completed = students.filter((s) => s.status?.includes("COMP")).length;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Inter" }}>
-      {/* ---------- SIDEBAR ---------- */}
-      <div
-        style={{
-          width: 250,
-          background: "#0f172a",
-          color: "white",
-          padding: 24
-        }}
-      >
-        <div style={{ fontWeight: 800, fontSize: 20, marginBottom: 30 }}>
-          MicroInterns
-        </div>
+    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: 30 }}>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <NavItem label="Dashboard" active />
-          <NavItem label="Students" />
-          <NavItem label="Settings" />
-
-          <div
-            onClick={signOut}
-            style={{
-              marginTop: 20,
-              cursor: "pointer",
-              padding: "10px 14px",
-              borderRadius: 8,
-              background: "#1e293b"
-            }}
-          >
-            Logout
-          </div>
-        </div>
+      {/* STATS */}
+      <div style={statsGrid}>
+        <StatCard title="Total Students" value={total} />
+        <StatCard title="Pending" value={pending} />
+        <StatCard title="Active" value={active} />
+        <StatCard title="Completed" value={completed} />
       </div>
 
-      {/* ---------- MAIN AREA ---------- */}
-      <div
-        style={{
-          flex: 1,
-          background: "#f8fafc",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        {/* ---------- HEADER ---------- */}
-        <header
-          style={{
-            background: "white",
-            padding: "18px 30px",
-            borderBottom: "1px solid #e5e7eb",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 800 }}>Dashboard</div>
-            <div style={{ fontSize: 13, color: "#94a3b8" }}>
-              Welcome back, {user}
-            </div>
-          </div>
+      {/* TABLE */}
+      <div style={{ marginTop: 30 }}>
+        <button onClick={() => setShowAddForm(true)}>+ Add Student</button>
 
-          <button
-            onClick={() => navigate("/")}
-            style={{
-              background: "#2563eb",
-              color: "white",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: 600
+        {showAddForm && (
+          <AddStudentForm
+            onSubmit={async (form) => {
+              await api.post("/students", form);
+              loadStudents();
+              setShowAddForm(false);
             }}
-          >
-            ← Back to Site
-          </button>
-        </header>
+            onClose={() => setShowAddForm(false)}
+          />
+        )}
 
-        {/* ---------- CONTENT ---------- */}
-        <div
-          style={{
-            padding: 30,
-            maxWidth: 1200,
-            margin: "0 auto",
-            width: "100%"
-          }}
-        >
-          {/* STAT CARDS */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-              gap: 20,
-              marginBottom: 30
-            }}
-          >
-            <StatCard title="Total Students" value={total} />
-            <StatCard title="Pending" value={pending} />
-            <StatCard title="Active" value={active} />
-            <StatCard title="Completed" value={completed} />
-          </div>
+        <StudentTable students={students} onView={openStudent} />
+      </div>
 
-          {/* STUDENT MANAGEMENT */}
-          <div
-            style={{
-              background: "white",
-              borderRadius: 12,
-              padding: 24,
-              boxShadow: "0 10px 28px rgba(0,0,0,0.04)"
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20
-              }}
-            >
-              <h2 style={{ margin: 0 }}>Student Management</h2>
+      {/* MODAL */}
+      {showModal && selectedStudent && (
+  <div style={overlay}>
+    <div style={modal}>
 
-              <button
-                onClick={() => setShowAddForm(true)}
-                style={{
-                  background: "#2563eb",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 18px",
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: "pointer"
-                }}
-              >
-                + Add Student
-              </button>
-            </div>
-
-            {statusMsg && (
-              <div
-                style={{
-                  marginBottom: 16,
-                  padding: "10px 14px",
-                  borderRadius: 6,
-                  background:
-                    statusMsg.type === "success" ? "#ecfdf5" : "#fef2f2",
-                  color:
-                    statusMsg.type === "success" ? "#065f46" : "#991b1b"
-                }}
-              >
-                {statusMsg.msg}
-              </div>
-            )}
-
-            {/* ADD STUDENT MODAL */}
-            {showAddForm && (
-              <AddStudentForm
-                onSubmit={async (form) => {
-                  await api.post("/students", form);
-                  loadStudents();
-                  setShowAddForm(false);
-                }}
-                onClose={() => setShowAddForm(false)}
-              />
-            )}
-
-            {/* LOADING + EMPTY STATE */}
-            {loading && <p>Loading students...</p>}
-
-            {!loading && students.length === 0 && (
-              <p style={{ color: "#64748b" }}>
-                No students yet. Click "Add Student" to begin.
-              </p>
-            )}
-
-            {!loading && students.length > 0 && (
-              <StudentTable
-                students={students}
-                onReassign={handleReassign}
-                onApprove={handleApprove}
-    
-              />
-            )}
-          </div>
+      <div style={header}>
+        <div>
+          <h2>{selectedStudent.student.name}</h2>
+          <small>{selectedStudent.student.email}</small>
         </div>
+        <button onClick={() => setShowModal(false)}>✕</button>
+      </div>
+
+      <div style={statusBox}>
+        Status: <b>{selectedStudent.student.onboardingStatus?.replaceAll("_"," ")}</b>
+      </div>
+
+      {/* 🔥 CLEAN STRUCTURED DETAILS */}
+      <div style={{ marginTop: 20 }}>
+        <h3>Student Details</h3>
+
+        <Section title="Personal Information">
+          <Detail label="Phone" value={selectedStudent.student.phone} />
+          <Detail label="Date of Birth" value={selectedStudent.student.dob} />
+          <Detail label="Nationality" value={selectedStudent.student.nationality} />
+          <Detail label="Gender" value={selectedStudent.student.gender} />
+        </Section>
+
+        <Section title="Address">
+          <Detail label="Address" value={selectedStudent.student.address} />
+          <Detail label="City" value={selectedStudent.student.city} />
+          <Detail label="Postcode" value={selectedStudent.student.postcode} />
+        </Section>
+
+        <Section title="Education">
+          <Detail label="University" value={selectedStudent.student.university} />
+          <Detail label="Course" value={selectedStudent.student.course} />
+          <Detail label="Year" value={selectedStudent.student.year} />
+          <Detail label="Deatils" value={selectedStudent.student.educcationDetails}/>
+        </Section>
+
+        <Section title="Work Eligibility">
+          <Detail label="Right to Work" value={selectedStudent.student.rightToWork} />
+          <Detail label="Work Experience" value={selectedStudent.student.workexperience}/>
+        </Section>
+
+        <Section title="Emergency Contact">
+          <Detail label="Name" value={selectedStudent.student.emergencyContactName} />
+          <Detail label="Phone" value={selectedStudent.student.emergencyContactPhone} />
+          <Detail label="Relation" value={selectedStudent.student.emergencyContactName}/>
+        </Section>
+
+        <Section title="Bank Details">
+          <Detail label="Bank" value={selectedStudent.student.bankName} />
+          <Detail label="Account Number" value={selectedStudent.student.bankAccountNumber} />
+          <Detail label="Sort Code" value={selectedStudent.student.sortCode} />
+          <Detail label="IFSC Code" value={selectedStudent.student.ifscCode} />
+        </Section>
+      </div>
+
+      {/* MATCHES */}
+      <div style={{ marginTop: 20 }}>
+        <h3>Recommended Mentors</h3>
+
+        {matches.map((m) => (
+          <div key={m.id} style={matchCard}>
+            <strong>{m.name}</strong> — {m.score}%
+          </div>
+        ))}
+      </div>
+
+      {/* ASSIGN */}
+      <div style={{ marginTop: 20 }}>
+        <select
+          value={selectedMentor}
+          onChange={(e) => setSelectedMentor(Number(e.target.value))}
+          style={input}
+        >
+          <option value="">Select Mentor</option>
+          {mentors.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+
+        <button onClick={assignMentor} style={btnPrimary}>
+          Assign Mentor
+        </button>
+      </div>
+
+      {/* ACTIONS */}
+      <div style={actionRow}>
+        <button onClick={approveStudent} style={btnSuccess}>
+          Approve Student
+        </button>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteStudent();
+          }}
+          style={btnDanger}
+        >
+          Delete Student
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+      {toast && <div style={toastStyle}>{toast}</div>}
+    </div>
+  );
+}
+
+/* ---------- STYLES ---------- */
+function Section({ title, children }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <h4 style={{
+        marginBottom: 8,
+        fontSize: 16,
+        fontWeight: 700,
+        color: "#111827"
+      }}>
+        {title}
+      </h4>
+
+      <div style={detailsGrid}>
+        {children}
       </div>
     </div>
   );
 }
+
+const statsGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+  gap: 20
+};
+
+const statCard = {
+  background: "white",
+  padding: 20,
+  borderRadius: 12
+};
+
+const overlay = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "rgba(0,0,0,0.5)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center"
+};
+
+const modal = {
+  background: "white",
+  padding: 20,
+  borderRadius: 12,
+  width: "700px",
+  maxHeight: "90vh",   // 🔥 important
+  overflowY: "auto"    // 🔥 enables scroll
+};
+
+const header = {
+  display: "flex",
+  justifyContent: "space-between",
+  position: "sticky",
+  top: 0,
+  background: "white",
+  zIndex: 10,
+  paddingBottom: 10
+};
+const statusBox = {
+  background: "#e0f2fe",
+  padding: 10,
+  borderRadius: 6,
+  marginTop: 10
+};
+
+const matchCard = {
+  background: "#eef2ff",
+  padding: 10,
+  borderRadius: 6,
+  marginTop: 5
+};
+
+const input = {
+  width: "100%",
+  padding: 10,
+  marginTop: 10
+};
+
+const btnPrimary = {
+  marginTop: 10,
+  padding: 10,
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  borderRadius: 6
+};
+
+const btnSuccess = {
+  background: "#10b981",
+  color: "white",
+  padding: 10,
+  border: "none",
+  borderRadius: 6
+};
+
+const btnDanger = {
+  background: "#ef4444",
+  color: "white",
+  padding: 10,
+  border: "none",
+  borderRadius: 6
+};
+
+const actionRow = {
+  display: "flex",
+  gap: 12,
+  marginTop: 20
+};
+
+const toastStyle = {
+  position: "fixed",
+  bottom: 20,
+  right: 20,
+  background: "#111827",
+  color: "white",
+  padding: "12px 20px",
+  borderRadius: 8,
+  fontWeight: 600
+};
+function Detail({ label, value }) {
+  return (
+    <div style={detailCard}>
+      <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+      <div style={{ fontWeight: 600 }}>
+        {value ? value : "Not provided"}
+      </div>
+    </div>
+  );
+}
+const detailsGrid = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 12,
+  marginTop: 10
+};
+
+const detailCard = {
+  background: "#f8fafc",
+  padding: 12,
+  borderRadius: 8,
+  border: "1px solid #e2e8f0"
+};

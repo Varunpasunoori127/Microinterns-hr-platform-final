@@ -38,13 +38,16 @@ public class MatchingController {
     }
 
     // ---------------------------------------------------------
-    // 1️⃣ MATCHING ENDPOINT
+    // 🔥 MATCHING (FINAL FIXED VERSION)
     // ---------------------------------------------------------
     @GetMapping("/{studentId}")
     public List<Map<String, Object>> matchMentors(@PathVariable Long studentId) {
 
         List<StudentSkill> studentSkills = studentSkillRepo.findByStudentId(studentId);
         List<Mentor> mentors = mentorRepo.findAll();
+
+        System.out.println("Student Skills Count: " + studentSkills.size());
+        System.out.println("Mentors Count: " + mentors.size());
 
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -53,33 +56,23 @@ public class MatchingController {
             List<MentorSkill> mentorSkills = mentorSkillRepo.findByMentorId(mentor.getId());
 
             int score = 0;
-            List<String> matchedSkills = new ArrayList<>();
-            List<String> missingSkills = new ArrayList<>();
 
             for (StudentSkill ss : studentSkills) {
-
-                boolean matched = false;
-
                 for (MentorSkill ms : mentorSkills) {
 
-                    if (ss.getSkill().equalsIgnoreCase(ms.getSkill())) {
+                    String studentSkill = ss.getSkill() == null ? "" : ss.getSkill().trim().toLowerCase();
+                    String mentorSkill = ms.getSkill() == null ? "" : ms.getSkill().trim().toLowerCase();
 
-                        matched = true;
-                        matchedSkills.add(ss.getSkill());
+                    System.out.println("Comparing: " + studentSkill + " vs " + mentorSkill);
 
-                        // Weighted scoring
+                    if (studentSkill.equals(mentorSkill)) {
+
                         switch (ss.getLevel().toLowerCase()) {
                             case "advanced" -> score += 30;
                             case "intermediate" -> score += 20;
                             default -> score += 10;
                         }
-
-                        break;
                     }
-                }
-
-                if (!matched) {
-                    missingSkills.add(ss.getSkill());
                 }
             }
 
@@ -87,64 +80,61 @@ public class MatchingController {
             int percentage = maxScore == 0 ? 0 : (score * 100) / maxScore;
 
             Map<String, Object> res = new HashMap<>();
-            res.put("mentorId", mentor.getId());
-            res.put("mentor", mentor.getName());
+            res.put("id", mentor.getId());
+            res.put("name", mentor.getName());
             res.put("expertise", mentor.getExpertise());
             res.put("score", percentage);
-            res.put("matchedSkills", matchedSkills);
-            res.put("missingSkills", missingSkills);
 
             results.add(res);
         }
 
-        return results.stream()
-                .sorted((a, b) -> (int) b.get("score") - (int) a.get("score"))
-                .toList();
+        // 🔥 Sort by highest score
+        results.sort((a, b) -> (int) b.get("score") - (int) a.get("score"));
+
+        return results;
     }
 
     // ---------------------------------------------------------
-    // 2️⃣ ASSIGN MENTOR (HR becomes case owner)
+    // 🔥 ASSIGN MENTOR
     // ---------------------------------------------------------
-    @PostMapping("/assign")
-    public Map<String, String> assignMentor(
-            @RequestParam Long studentId,
-            @RequestParam Long mentorId
-    ) {
+   @PostMapping("/assign")
+public Map<String, String> assignMentor(@RequestBody Map<String, Object> body) {
 
-        Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+    Long studentId = Long.valueOf(body.get("studentId").toString());
+    Long mentorId = Long.valueOf(body.get("mentorId").toString());
 
-        Mentor mentor = mentorRepo.findById(mentorId)
-                .orElseThrow(() -> new RuntimeException("Mentor not found"));
+    System.out.println("Assigning: student=" + studentId + ", mentor=" + mentorId);
 
-        // Assign mentor to student
-        student.setMentor(mentor);
-        studentRepo.save(student);
+    Student student = studentRepo.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Fetch case
-        Case studentCase = caseRepo.findAll().stream()
-                .filter(c -> c.getStudent() != null && c.getStudent().getId().equals(studentId))
-                .findFirst()
-                .orElse(null);
+    Mentor mentor = mentorRepo.findById(mentorId)
+            .orElseThrow(() -> new RuntimeException("Mentor not found"));
 
-        if (studentCase != null) {
+    // ✅ Assign mentor
+    student.setMentor(mentor);
+    studentRepo.save(student);
 
-            // ⭐ NEW: Set logged-in HR as owner
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String email = auth.getName();
+    // ✅ Update case
+    Case studentCase = caseRepo.findAll().stream()
+            .filter(c -> c.getStudent() != null && c.getStudent().getId().equals(studentId))
+            .findFirst()
+            .orElse(null);
 
-            HRUser hr = hrUserRepository.findByEmail(email)
-                    .orElse(null);
+    if (studentCase != null) {
 
-            if (hr != null) {
-                studentCase.setOwner(hr);
-            }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
 
-            // Update status
-            studentCase.setStatus(Case.CaseStatus.ACTIVE);
-            caseRepo.save(studentCase);
+        HRUser hr = hrUserRepository.findByEmail(email).orElse(null);
+
+        if (hr != null) {
+            studentCase.setOwner(hr);
         }
 
-        return Map.of("message", "Mentor assigned successfully");
+        studentCase.setStatus(Case.CaseStatus.ACTIVE);
+        caseRepo.save(studentCase);
     }
-}
+
+    return Map.of("message", "Mentor assigned successfully");
+    } }

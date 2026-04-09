@@ -43,7 +43,7 @@ public class StudentApiIntegrationTest {
         Student s = new Student();
         s.setName("Test Student");
         s.setEmail("test@example.com");
-        s.setOrg("Acme");
+        
         s.setOnboardingStatus("pending");
 
         String payload = objectMapper.writeValueAsString(s);
