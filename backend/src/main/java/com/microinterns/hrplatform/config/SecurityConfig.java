@@ -42,9 +42,9 @@ public class SecurityConfig {
                         "/auth/**",
                         "/student-auth/**",
                         "/students/**",
-                        "/match/**",
-                        "/h2-console/**",
-                        "/debug/**"
+                        "/match/**"
+                        
+                        
                 ).permitAll()
 
                 // ✅ everything else allowed (for now)
