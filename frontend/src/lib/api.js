@@ -35,20 +35,23 @@ const api = {
   },
 
   post: async (url, body) => {
-    const res = await fetch(`${API_URL}${url}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`
-      },
-      body: JSON.stringify(body)
-    });
+  const res = await fetch(`${API_URL}${url}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(body)
+  });
 
-    if (!res.ok) throw new Error("POST failed");
+  const text = await res.text(); // 👈 get raw response
 
-    return await res.json();
-  },
+  if (!res.ok) {
+    throw new Error(text || "POST failed"); // 👈 show backend error
+  }
 
+  return JSON.parse(text);
+},
   del: async (url) => {
     const res = await fetch(`${API_URL}${url}`, {
       method: "DELETE",
