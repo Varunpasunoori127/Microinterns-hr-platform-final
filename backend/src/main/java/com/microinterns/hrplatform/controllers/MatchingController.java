@@ -38,16 +38,13 @@ public class MatchingController {
     }
 
     // ---------------------------------------------------------
-    // 🔥 MATCHING (FINAL FIXED VERSION)
+    // 🔥 MATCHING
     // ---------------------------------------------------------
     @GetMapping("/{studentId}")
     public List<Map<String, Object>> matchMentors(@PathVariable Long studentId) {
 
         List<StudentSkill> studentSkills = studentSkillRepo.findByStudentId(studentId);
         List<Mentor> mentors = mentorRepo.findAll();
-
-        System.out.println("Student Skills Count: " + studentSkills.size());
-        System.out.println("Mentors Count: " + mentors.size());
 
         List<Map<String, Object>> results = new ArrayList<>();
 
@@ -62,8 +59,6 @@ public class MatchingController {
 
                     String studentSkill = ss.getSkill() == null ? "" : ss.getSkill().trim().toLowerCase();
                     String mentorSkill = ms.getSkill() == null ? "" : ms.getSkill().trim().toLowerCase();
-
-                    System.out.println("Comparing: " + studentSkill + " vs " + mentorSkill);
 
                     if (studentSkill.equals(mentorSkill)) {
 
@@ -88,7 +83,7 @@ public class MatchingController {
             results.add(res);
         }
 
-        // 🔥 Sort by highest score
+        // 🔥 sort highest score first
         results.sort((a, b) -> (int) b.get("score") - (int) a.get("score"));
 
         return results;
@@ -97,44 +92,41 @@ public class MatchingController {
     // ---------------------------------------------------------
     // 🔥 ASSIGN MENTOR
     // ---------------------------------------------------------
-   @PostMapping("/assign")
-public Map<String, String> assignMentor(@RequestBody Map<String, Object> body) {
+    @PostMapping("/assign")
+    public Map<String, String> assignMentor(@RequestBody Map<String, Object> body) {
 
-    Long studentId = Long.valueOf(body.get("studentId").toString());
-    Long mentorId = Long.valueOf(body.get("mentorId").toString());
+        Long studentId = Long.valueOf(body.get("studentId").toString());
+        Long mentorId = Long.valueOf(body.get("mentorId").toString());
 
-    System.out.println("Assigning: student=" + studentId + ", mentor=" + mentorId);
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    Student student = studentRepo.findById(studentId)
-            .orElseThrow(() -> new RuntimeException("Student not found"));
+        Mentor mentor = mentorRepo.findById(mentorId)
+                .orElseThrow(() -> new RuntimeException("Mentor not found"));
 
-    Mentor mentor = mentorRepo.findById(mentorId)
-            .orElseThrow(() -> new RuntimeException("Mentor not found"));
+        // ✅ assign mentor to student
+        student.setMentor(mentor);
+        student.setOnboardingStatus("MATCHED");
+        studentRepo.save(student);
 
-    // ✅ Assign mentor
-    student.setMentor(mentor);
-    studentRepo.save(student);
+        // ✅ get case properly (optimized)
+        Case studentCase = caseRepo.findByStudentId(studentId).orElse(null);
 
-    // ✅ Update case
-    Case studentCase = caseRepo.findAll().stream()
-            .filter(c -> c.getStudent() != null && c.getStudent().getId().equals(studentId))
-            .findFirst()
-            .orElse(null);
+        if (studentCase != null) {
 
-    if (studentCase != null) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+            HRUser hr = hrUserRepository.findByEmail(email).orElse(null);
 
-        HRUser hr = hrUserRepository.findByEmail(email).orElse(null);
+            if (hr != null) {
+                studentCase.setOwner(hr);
+            }
 
-        if (hr != null) {
-            studentCase.setOwner(hr);
+            studentCase.setStatus(Case.CaseStatus.ACTIVE);
+            caseRepo.save(studentCase);
         }
 
-        studentCase.setStatus(Case.CaseStatus.ACTIVE);
-        caseRepo.save(studentCase);
+        return Map.of("message", "Mentor assigned successfully");
     }
-
-    return Map.of("message", "Mentor assigned successfully");
-    } }
+}

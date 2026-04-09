@@ -213,6 +213,8 @@ export default function StudentOnboardingPage() {
 
     // 🔥 IMPORTANT: MATCH BACKEND KEYS EXACTLY
     formData.append("name", form.name);
+    formData.append("preferredName", form.preferredName);
+    formData.append("email", form.email);
     formData.append("phone", form.phone);
     formData.append("dob", form.dob);
 
@@ -226,12 +228,15 @@ export default function StudentOnboardingPage() {
     formData.append("university", form.university);
     formData.append("course", form.course);
     formData.append("year", form.year);
+    formData.append("educationDetails", form.educationDetails);
 
     formData.append("rightToWork", form.rightToWork);
+    formData.append("workExperience", form.workExperience);
 
     // ⚠️ BACKEND USES DIFFERENT NAMES
     formData.append("emergencyName", form.emergencyContactName);
     formData.append("emergencyPhone", form.emergencyContactPhone);
+    formData.append("emergencyRelation", form.emergencyContactRelation);
 
     formData.append("bankName", form.bankName);
     formData.append("accountNumber", form.bankAccountNumber);

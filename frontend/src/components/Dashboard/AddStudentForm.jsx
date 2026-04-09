@@ -4,7 +4,7 @@ export default function AddStudentForm({ onSubmit, onClose }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    organisation: "",
+    university: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ export default function AddStudentForm({ onSubmit, onClose }) {
     e.preventDefault();
 
     // 🔥 basic validation
-    if (!form.name || !form.email || !form.organisation) {
+    if (!form.name || !form.email || !form.university) {
       setError("Please fill all fields");
       return;
     }
@@ -68,13 +68,13 @@ export default function AddStudentForm({ onSubmit, onClose }) {
             placeholder="Enter email"
           />
 
-          <label style={label}>Organisation</label>
+          <label style={label}>University</label>
           <input
-            name="organisation"
-            value={form.organisation}
+            name="university"
+            value={form.university}
             onChange={handleChange}
             style={input}
-            placeholder="Enter organisation"
+            placeholder="Enter university"
           />
 
           {/* 🔴 ERROR MESSAGE */}

@@ -14,6 +14,8 @@ export default function StudentSkillsPage() {
   const [assignedMentor, setAssignedMentor] = useState(null);
   const [loadingMatch, setLoadingMatch] = useState(false);
 
+  const [step, setStep] = useState("form");
+
   /* ---------- LOAD STUDENT ---------- */
   useEffect(() => {
     if (!token) return;
@@ -35,7 +37,6 @@ export default function StudentSkillsPage() {
   const addSkill = async () => {
     if (!skill || !student?.id) return;
 
-    // 🔥 prevent duplicates
     if (skills.some(s => s.skill.toLowerCase() === skill.toLowerCase())) {
       return;
     }
@@ -59,8 +60,8 @@ export default function StudentSkillsPage() {
     setSkills(prev => prev.filter((_, i) => i !== index));
   };
 
-  /* ---------- MATCH ---------- */
-  const finish = async () => {
+  /* ---------- FIND MATCH ---------- */
+  const findMatches = async () => {
     try {
       if (!student?.id || skills.length === 0) return;
 
@@ -69,16 +70,7 @@ export default function StudentSkillsPage() {
       const data = await api.get(`/match/${student.id}`);
       setMatches(data || []);
 
-      if (data && data.length > 0) {
-        const best = data[0];
-
-        await api.post("/match/assign", {
-          studentId: student.id,
-          mentorId: best.id
-        });
-
-        setAssignedMentor(best);
-      }
+      setStep("match");
 
     } catch (err) {
       console.error(err);
@@ -87,224 +79,248 @@ export default function StudentSkillsPage() {
     }
   };
 
+  /* ---------- CONFIRM ---------- */
+  const confirmMentor = async () => {
+    try {
+      const best = matches[0];
+
+      await api.post("/match/assign", {
+        studentId: student.id,
+        mentorId: best.id
+      });
+
+      setAssignedMentor(best);
+      setStep("done");
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (!student) return <p style={{ padding: 40 }}>Loading...</p>;
 
-  return (
-    <div style={styles.container}>
+  /* ================= FORM ================= */
+  if (step === "form") {
+    return (
+      <div style={container}>
+        <div style={card}>
 
-      {/* HEADER */}
-      <h1 style={styles.title}>🚀 Build Your Skill Profile</h1>
-      <p style={styles.subtitle}>
-        Add your skills to get matched with the best mentor
-      </p>
-
-      {/* COUNT */}
-      <p style={styles.count}>{skills.length} skill(s) added</p>
-
-      {/* INPUT CARD */}
-      <div style={styles.card}>
-        <div style={styles.inputRow}>
-          <input
-            value={skill}
-            onChange={(e) => setSkill(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addSkill()}
-            placeholder="e.g. Java, React, Python"
-            style={styles.input}
-          />
-
-          <select
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            style={styles.select}
-          >
-            <option>Beginner</option>
-            <option>Intermediate</option>
-            <option>Advanced</option>
-          </select>
-
-          <button style={styles.addBtn} onClick={addSkill}>
-            Add
-          </button>
-        </div>
-      </div>
-
-      {/* SKILLS */}
-      <div style={styles.skillsWrap}>
-        {skills.map((s, i) => (
-          <div key={i} style={styles.skillChip}>
-            {s.skill} • {s.level}
-            <span style={styles.remove} onClick={() => removeSkill(i)}>✕</span>
+          <div style={header}>
+            <h2 style={title}>Build Your Skill Profile</h2>
+            <span style={stepText}>Step 2 of 3</span>
           </div>
-        ))}
-      </div>
 
-      {/* MATCH BUTTON */}
-      <button
-        onClick={finish}
-        disabled={loadingMatch || skills.length === 0}
-        style={{
-          ...styles.finishBtn,
-          opacity: skills.length === 0 ? 0.5 : 1
-        }}
-      >
-        {loadingMatch ? "Matching..." : "Find My Mentor"}
-      </button>
+          <div style={progressContainer}>
+            <div style={progressFill}></div>
+          </div>
 
-      {/* MATCH RESULTS */}
-      {matches.length > 0 && (
-        <div style={styles.matchCard}>
-          <h2>🎯 Top Matches</h2>
+          <div style={inputRow}>
+            <input
+              value={skill}
+              onChange={(e) => setSkill(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addSkill()}
+              placeholder="e.g. Java, React, Python"
+              style={input}
+            />
 
-          {matches.map((m, i) => (
-            <div key={i} style={styles.matchItem}>
-              <div>
-                <strong>{m.name}</strong>
+            <select
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              style={select}
+            >
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+            </select>
+
+            <button style={addBtn} onClick={addSkill}>
+              Add
+            </button>
+          </div>
+
+          {skills.length === 0 && (
+            <p style={empty}>No skills added yet.</p>
+          )}
+
+          <div>
+            {skills.map((s, i) => (
+              <div key={i} style={skillTag}>
+                {s.skill} • {s.level}
+                <button style={removeBtn} onClick={() => removeSkill(i)}>✕</button>
               </div>
-              <span style={styles.score}>{m.score}%</span>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
 
-      {/* SUCCESS */}
-      {assignedMentor && (
-        <div style={styles.successCard}>
-          <h2>🎉 Mentor Assigned</h2>
+          <button
+            onClick={findMatches}
+            disabled={loadingMatch || skills.length === 0}
+            style={{
+              ...submitBtn,
+              opacity: skills.length === 0 ? 0.5 : 1
+            }}
+          >
+            {loadingMatch ? "Matching..." : "Find My Mentor"}
+          </button>
+
+          <p style={note}>You can update your skills later</p>
+
+        </div>
+      </div>
+    );
+  }
+
+  /* ================= MATCH ================= */
+  if (step === "match") {
+    return (
+      <div style={container}>
+        <div style={card}>
+
+          <div style={header}>
+            <h2 style={title}>Recommended Mentor</h2>
+            <span style={stepText}>Step 3 of 3</span>
+          </div>
+
+          <div style={progressContainer}>
+            <div style={{ ...progressFill, width: "100%" }}></div>
+          </div>
+
+          {matches.length > 0 && (
+            <div style={matchCard}>
+              <h2>{matches[0].name}</h2>
+              <p>{matches[0].score}% Match</p>
+            </div>
+          )}
+
+          <button style={submitBtn} onClick={confirmMentor}>
+            Confirm Mentor
+          </button>
+
+        </div>
+      </div>
+    );
+  }
+
+  /* ================= DONE ================= */
+  if (step === "done") {
+    return (
+      <div style={container}>
+        <div style={{ ...card, textAlign: "center" }}>
+          <h2 style={{ color: "#10b981" }}>🎉 You Are Assigned!</h2>
           <h1>{assignedMentor.name}</h1>
           <p>Match Score: {assignedMentor.score}%</p>
-
-          <p style={styles.successText}>
-            🎯 You’ve been successfully matched. Your mentor will contact you soon.
-          </p>
+          <p style={note}>Your mentor will contact you soon 🚀</p>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 }
 
-/* ---------- STYLES ---------- */
+/* ================= STYLES ================= */
 
-const styles = {
-  container: {
-    maxWidth: 800,
-    margin: "auto",
-    padding: 40,
-    fontFamily: "Inter, sans-serif"
-  },
+const container = {
+  minHeight: "100vh",
+  background: "#f8fafc",
+  display: "flex",
+  justifyContent: "center",
+  padding: "40px 20px"
+};
 
-  title: {
-    fontSize: 30,
-    fontWeight: 700
-  },
+const card = {
+  width: "100%",
+  maxWidth: "700px",
+  background: "white",
+  padding: "30px",
+  borderRadius: "16px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+  border: "1px solid #f1f5f9"
+};
 
-  subtitle: {
-    color: "#64748b",
-    marginBottom: 10
-  },
+const header = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginBottom: 20
+};
 
-  count: {
-    fontSize: 13,
-    color: "#94a3b8",
-    marginBottom: 20
-  },
+const title = { fontSize: 22, fontWeight: 700 };
 
-  card: {
-    background: "white",
-    padding: 20,
-    borderRadius: 12,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.05)"
-  },
+const stepText = { fontSize: 12, color: "#64748b" };
 
-  inputRow: {
-    display: "flex",
-    gap: 10
-  },
+const progressContainer = {
+  height: 6,
+  background: "#e5e7eb",
+  borderRadius: 999,
+  marginBottom: 20
+};
 
-  input: {
-    flex: 1,
-    padding: 12,
-    border: "1px solid #d1d5db",
-    borderRadius: 6
-  },
+const progressFill = {
+  height: "100%",
+  width: "66%",
+  background: "#2563eb",
+  borderRadius: 999
+};
 
-  select: {
-    padding: 12,
-    borderRadius: 6
-  },
+const inputRow = { display: "flex", gap: 10 };
 
-  addBtn: {
-    background: "#2563eb",
-    color: "white",
-    border: "none",
-    padding: "12px 18px",
-    borderRadius: 6,
-    cursor: "pointer"
-  },
+const input = {
+  flex: 1,
+  padding: 12,
+  borderRadius: 10,
+  border: "1px solid #e2e8f0"
+};
 
-  skillsWrap: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    marginTop: 20
-  },
+const select = {
+  padding: 12,
+  borderRadius: 10,
+  border: "1px solid #e2e8f0"
+};
 
-  skillChip: {
-    background: "#e0f2fe",
-    padding: "8px 12px",
-    borderRadius: 20,
-    fontSize: 13,
-    display: "flex",
-    alignItems: "center"
-  },
+const addBtn = {
+  background: "#2563eb",
+  color: "white",
+  padding: "12px 16px",
+  borderRadius: 10,
+  border: "none"
+};
 
-  remove: {
-    marginLeft: 8,
-    cursor: "pointer",
-    color: "#ef4444",
-    fontWeight: 700
-  },
+const skillTag = {
+  display: "inline-flex",
+  gap: 8,
+  padding: "8px 12px",
+  background: "#eef2ff",
+  borderRadius: 999,
+  margin: 5
+};
 
-  finishBtn: {
-    marginTop: 30,
-    width: "100%",
-    padding: 14,
-    background: "#16a34a",
-    color: "white",
-    border: "none",
-    borderRadius: 8,
-    fontSize: 16,
-    cursor: "pointer"
-  },
+const removeBtn = {
+  border: "none",
+  background: "transparent",
+  color: "red",
+  cursor: "pointer"
+};
 
-  matchCard: {
-    marginTop: 40,
-    padding: 20,
-    background: "#f8fafc",
-    borderRadius: 10
-  },
+const empty = { color: "#64748b", marginTop: 10 };
 
-  matchItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: 12,
-    borderBottom: "1px solid #e5e7eb"
-  },
+const submitBtn = {
+  width: "100%",
+  background: "#4b0488",
+  color: "white",
+  padding: 14,
+  borderRadius: 12,
+  border: "none",
+  marginTop: 20
+};
 
-  score: {
-    fontWeight: 700,
-    color: "#2563eb"
-  },
+const note = {
+  textAlign: "center",
+  fontSize: 12,
+  color: "#64748b",
+  marginTop: 10
+};
 
-  successCard: {
-    marginTop: 40,
-    padding: 30,
-    background: "#ecfdf5",
-    borderRadius: 12,
-    textAlign: "center"
-  },
-
-  successText: {
-    color: "#059669",
-    fontWeight: 600
-  }
+const matchCard = {
+  background: "#eef2ff",
+  padding: 20,
+  borderRadius: 12,
+  textAlign: "center",
+  marginBottom: 20
 };

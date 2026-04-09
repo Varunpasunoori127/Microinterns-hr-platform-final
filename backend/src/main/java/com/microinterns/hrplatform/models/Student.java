@@ -20,7 +20,6 @@ public class Student {
     private String name;
 
     @Email
-    @NotBlank
     private String email;
 
     // ================= PERSONAL =================

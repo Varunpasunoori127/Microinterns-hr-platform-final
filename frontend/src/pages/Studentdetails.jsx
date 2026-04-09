@@ -10,15 +10,14 @@ export default function StudentDetails() {
   useEffect(() => {
     api.get(`/students/${id}`)
       .then(res => {
-        console.log("API RESPONSE:", res.data); // DEBUG
-        setData(res.data); // ✅ FIXED
+        console.log("API RESPONSE:", res); // ✅ FIXED
+        setData(res); // ✅ FIXED
       })
       .catch(() => alert("Failed to load"));
   }, [id]);
 
   if (!data) return <p>Loading...</p>;
 
-  // ✅ SAFE HANDLING (works for both backend formats)
   const student = data.student || data;
 
   const fields = [
@@ -34,6 +33,7 @@ export default function StudentDetails() {
     { key: "university", label: "University" },
     { key: "course", label: "Course" },
     { key: "year", label: "Year of Study" },
+    { key: "educationDetails", label: "Education Details" }, // ✅ FIXED
 
     { key: "rightToWork", label: "Right to Work" },
 
@@ -49,7 +49,6 @@ export default function StudentDetails() {
 
   return (
     <div style={styles.container}>
-
       <div style={styles.card}>
 
         <h2 style={styles.name}>{student.name || "—"}</h2>
@@ -71,12 +70,9 @@ export default function StudentDetails() {
         </div>
 
       </div>
-
     </div>
   );
 }
-
-/* ================= STYLES ================= */
 
 const styles = {
   container: {

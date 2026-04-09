@@ -52,6 +52,7 @@ public class StudentController {
             StudentResponse resp = new StudentResponse();
             resp.id = s.getId();
             resp.name = s.getName();
+            resp.email = s.getEmail();
             resp.university = s.getUniversity(); // ✅ ADD
             resp.course = s.getCourse();    
             resp.status = s.getOnboardingStatus();
@@ -59,7 +60,7 @@ public class StudentController {
             if (s.getMentor() != null) {
                 Owner o = new Owner();
                 o.name = s.getMentor().getName();
-                resp.caseOwner = o;
+                resp.mentor = o;
             }
 
             return resp;
@@ -217,10 +218,11 @@ public class StudentController {
     public static class StudentResponse {
         public Long id;
         public String name;
+        public String email;   
         public String university; // ✅ NEW
         public String course;     // ✅ NEW
         public String status;
-        public Owner caseOwner;
+        public Owner mentor;
     }
 
     public static class Owner {

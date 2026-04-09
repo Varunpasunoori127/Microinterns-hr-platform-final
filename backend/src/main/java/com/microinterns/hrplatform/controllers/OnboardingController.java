@@ -53,7 +53,9 @@ public class OnboardingController {
         // =========================
         // BASIC
         // =========================
+        
         student.setName(params.getOrDefault("name", ""));
+        student.setEmail(params.getOrDefault("email", "")); 
         student.setPhone(params.getOrDefault("phone", ""));
         student.setDob(params.getOrDefault("dob", ""));
 
@@ -89,7 +91,7 @@ public class OnboardingController {
         // =========================
         student.setEmergencyContactName(params.getOrDefault("emergencyName", ""));
         student.setEmergencyContactPhone(params.getOrDefault("emergencyPhone", ""));
-        student.setEmergencyContactRelation(params.getOrDefault("emergencyRelation", ""));
+        student.setEmergencyContactRelation(params.getOrDefault("emergencyContactRelation", ""));
 
         // =========================
         // BANK

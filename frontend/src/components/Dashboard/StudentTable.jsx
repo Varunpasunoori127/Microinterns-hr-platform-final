@@ -71,14 +71,14 @@ export default function StudentTable({ students, onReassign, onApprove, onView }
               </td>
 
               <td style={td}>
-                <span style={badge(s.status)}>
-                  {(s.status || "N/A").replaceAll("_", " ")}
+                <span style={badge(s.onboardingStatus)}>
+                  {(s.onboardingStatus || "N/A").replaceAll("_", " ")}
                 </span>
               </td>
 
               <td style={td}>
-                {s.caseOwner?.name ? (
-                  <span style={mentorBadge}>{s.caseOwner.name}</span>
+                {s.mentor?.name ? (
+                  <span style={mentorBadge}>{s.mentor.name}</span>
                 ) : (
                   <span style={unassigned}>Not Assigned</span>
                 )}
@@ -113,7 +113,7 @@ export default function StudentTable({ students, onReassign, onApprove, onView }
                     </button>
                   )}
 
-                  {s.status === "MATCHED" && onApprove && (
+                  {s.onboardingStatus === "MATCHED" && onApprove && (
                     <button
                       style={btnApprove}
                       onClick={() => onApprove(s.id)}

@@ -31,9 +31,25 @@ export default function Dashboard() {
 
   /* ---------- LOAD ---------- */
 
-  const loadStudents = () => {
-    api.get("/students").then((data) => setStudents(data || []));
-  };
+  const loadStudents = async () => {
+  try {
+    const data = await api.get("/students");
+
+    console.log("RAW DATA:", data);
+
+    const fixed = data.map(s => ({
+      ...s,
+      onboardingStatus: s.onboardingStatus || s.status,
+      mentor: s.mentor || s.caseOwner || null // 🔥 KEY FIX
+    }));
+
+    setStudents(fixed);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+  
 
   const loadMentors = async () => {
     try {
@@ -78,32 +94,46 @@ export default function Dashboard() {
   /* ---------- ACTIONS ---------- */
 
   const assignMentor = async () => {
-    if (!selectedMentor) return;
+  try {
+    await api.post("/match/assign", {
+      studentId: selectedStudent.student.id,
+      mentorId: selectedMentor,
+    });
 
-    try {
-      await api.post("/match/assign", {
-        studentId: selectedStudent.student.id,
-        mentorId: selectedMentor,
-      });
+    setToast("🎉 Mentor Assigned");
 
-      setToast("✅ Mentor Assigned!");
-      loadStudents();
+    // 🔥 THIS WAS MISSING
+    await loadStudents();
+
+    // 🔥 CLOSE MODAL AFTER UPDATE
+    setTimeout(() => {
       setShowModal(false);
+    }, 500);
 
-    } catch {
-      setToast("❌ Assignment failed");
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    setToast("❌ Assign failed");
+  }
+};
 
   const approveStudent = async () => {
-    try {
-      await api.post(`/students/approve/${selectedStudent.student.id}`);
-      setToast("✅ Student Approved!");
-      loadStudents();
-    } catch {
-      setToast("❌ Approval failed");
-    }
-  };
+  try {
+    await api.post(`/students/approve/${selectedStudent.student.id}`);
+
+    setToast("✅ Student Approved");
+
+    loadStudents();
+
+    // 🔥 CLOSE MODAL
+    setTimeout(() => {
+      setShowModal(false);
+    }, 500);
+
+  } catch (err) {
+    console.error(err);
+    setToast("❌ Failed to approve");
+  }
+};
 
    const deleteStudent = async () => {
   try {
@@ -130,9 +160,9 @@ export default function Dashboard() {
   /* ---------- COUNTS ---------- */
 
   const total = students.length;
-  const pending = students.filter((s) => s.status?.includes("PEND")).length;
-  const active = students.filter((s) => s.status?.includes("ACTIVE")).length;
-  const completed = students.filter((s) => s.status?.includes("COMP")).length;
+  const pending = students.filter((s) => s.onboardingStatus?.includes("PEND")).length;
+  const active = students.filter((s) => s.onboardingStatus?.includes("ACTIVE")).length;
+  const completed = students.filter((s) => s.onboardingStatus?.includes("COMP")).length;
 
   return (
     <div style={{ background: "#f8fafc", minHeight: "100vh", padding: 30 }}>
@@ -150,15 +180,29 @@ export default function Dashboard() {
         <button onClick={() => setShowAddForm(true)}>+ Add Student</button>
 
         {showAddForm && (
-          <AddStudentForm
-            onSubmit={async (form) => {
-              await api.post("/students", form);
-              loadStudents();
-              setShowAddForm(false);
-            }}
-            onClose={() => setShowAddForm(false)}
-          />
-        )}
+  <AddStudentForm
+    onSubmit={async (form) => {
+      try {
+        const res = await api.post("/students", form);
+
+        console.log("TOKEN RESPONSE:", res); // ✅ SEE TOKEN
+
+        // 🔥 AUTO REDIRECT TO SKILLS PAGE
+        if (res?.onboardingToken) {
+          window.open(`/skills/${res.onboardingToken}`, "_blank");
+        }
+
+        loadStudents();
+        setShowAddForm(false);
+
+      } catch (err) {
+        console.error(err);
+        setToast("❌ Failed to add student");
+      }
+    }}
+    onClose={() => setShowAddForm(false)}
+  />
+)}
 
         <StudentTable students={students} onView={openStudent} />
       </div>
@@ -171,7 +215,7 @@ export default function Dashboard() {
       <div style={header}>
         <div>
           <h2>{selectedStudent.student.name}</h2>
-          <small>{selectedStudent.student.email}</small>
+           <small>{selectedStudent.student.email || "No Email"}</small>
         </div>
         <button onClick={() => setShowModal(false)}>✕</button>
       </div>
@@ -201,18 +245,18 @@ export default function Dashboard() {
           <Detail label="University" value={selectedStudent.student.university} />
           <Detail label="Course" value={selectedStudent.student.course} />
           <Detail label="Year" value={selectedStudent.student.year} />
-          <Detail label="Deatils" value={selectedStudent.student.educcationDetails}/>
+          <Detail label="Deatils" value={selectedStudent.student.educationDetails}/>
         </Section>
 
         <Section title="Work Eligibility">
           <Detail label="Right to Work" value={selectedStudent.student.rightToWork} />
-          <Detail label="Work Experience" value={selectedStudent.student.workexperience}/>
+          <Detail label="Work Experience" value={selectedStudent.student.workExperience}/>
         </Section>
 
         <Section title="Emergency Contact">
           <Detail label="Name" value={selectedStudent.student.emergencyContactName} />
           <Detail label="Phone" value={selectedStudent.student.emergencyContactPhone} />
-          <Detail label="Relation" value={selectedStudent.student.emergencyContactName}/>
+          <Detail label="Relation" value={selectedStudent.student.emergencyContactRelation}/>
         </Section>
 
         <Section title="Bank Details">
