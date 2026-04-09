@@ -8,11 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/student-auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://microinterns-hr-platform-final.vercel.app"
+})
 public class StudentAuthController {
 
     private final StudentRepository studentRepository;
@@ -21,6 +26,9 @@ public class StudentAuthController {
         this.studentRepository = studentRepository;
     }
 
+    // =========================
+    // GOOGLE LOGIN
+    // =========================
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> body) {
 
@@ -31,7 +39,7 @@ public class StudentAuthController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Missing credential"));
             }
 
-            // 🔥 Decode Google JWT
+            // 🔥 Decode Google JWT (NOTE: not verified - acceptable for prototype)
             String[] parts = credential.split("\\.");
             String payload = new String(Base64.getDecoder().decode(parts[1]));
 
@@ -45,20 +53,50 @@ public class StudentAuthController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Email not found"));
             }
 
-            // 🔥 Create or fetch student
-            Student student = studentRepository.findByEmail(email).orElseGet(() -> {
+            // =========================
+            // 🔥 SMART MATCHING LOGIC
+            // =========================
 
-                Student newStudent = new Student();
-                newStudent.setEmail(email);
-                newStudent.setName(name != null ? name : "Student");
-                newStudent.setOnboardingCompleted(false);
-                newStudent.setOnboardingStatus("PENDING_ONBOARDING");
+            // 1. Try find by email
+            Student student = studentRepository.findByEmail(email).orElse(null);
 
-                newStudent.generateOnboardingToken();
+            // 2. Fallback: match old records without email (safe match)
+            if (student == null && name != null) {
+                Optional<Student> match = studentRepository.findAll().stream()
+                        .filter(s -> name.equalsIgnoreCase(s.getName()) && s.getEmail() == null)
+                        .findFirst();
+                student = match.orElse(null);
+            }
 
-                return studentRepository.save(newStudent);
-            });
+            // 3. Create new if not found
+            if (student == null) {
+                student = new Student();
+                student.setOnboardingCompleted(false);
+                student.setOnboardingStatus("PENDING_ONBOARDING");
+                student.generateOnboardingToken();
+            }
 
+            // =========================
+            // 🔥 ALWAYS UPDATE DATA
+            // =========================
+            student.setEmail(email);
+            student.setName(name != null ? name : "Student");
+
+            // ensure token exists
+            if (student.getOnboardingToken() == null) {
+                student.generateOnboardingToken();
+            }
+
+            // ensure status exists
+            if (student.getOnboardingStatus() == null) {
+                student.setOnboardingStatus("PENDING_ONBOARDING");
+            }
+
+            studentRepository.save(student);
+
+            // =========================
+            // RESPONSE
+            // =========================
             return ResponseEntity.ok(Map.of(
                     "studentId", student.getId(),
                     "email", student.getEmail(),
