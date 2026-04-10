@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -27,7 +27,39 @@ import StudentSkillsPage from "./pages/StudentSkillsPage";
 
 function App() {
 
+  const [loading, setLoading] = useState(true);
+
   console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
+  /* 🔥 AUTO WAKE BACKEND (IMPORTANT) */
+  useEffect(() => {
+    fetch("https://microinterns-hr-platform-final.onrender.com")
+      .then(() => {
+        console.log("Backend awake ✅");
+        setLoading(false);
+      })
+      .catch(() => {
+        console.log("Waking backend...");
+        setTimeout(() => setLoading(false), 2000);
+      });
+  }, []);
+
+  /* 🔥 GLOBAL LOADING SCREEN */
+  if (loading) {
+    return (
+      <div style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f9fafb"
+      }}>
+        <h2 style={{ marginBottom: 10 }}>MicroInterns</h2>
+        <p>Starting system... ⏳</p>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -79,12 +111,12 @@ function App() {
           }
         />
 
-        {/* ✅ ONBOARDING (NO NAVBAR — CLEAN UI) */}
+        {/* ONBOARDING */}
         <Route path="/onboarding" element={<OnboardingForm />} />
         <Route path="/onboarding/:token" element={<OnboardingForm />} />
         <Route path="/skills/:token" element={<StudentSkillsPage />} />
 
-        {/* 🔒 PROTECTED DASHBOARD ROUTES */}
+        {/* PROTECTED ROUTES */}
         <Route
           element={
             <ProtectedRoute>
@@ -92,14 +124,12 @@ function App() {
             </ProtectedRoute>
           }
         >
-
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/student/:id" element={<StudentDetails />} />
           <Route path="/match/:studentId" element={<MatchPage />} />
           <Route path="/mentors" element={<MentorPage />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
-
         </Route>
 
       </Routes>
