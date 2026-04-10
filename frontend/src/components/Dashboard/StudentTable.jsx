@@ -273,3 +273,13 @@ const btnApprove = {
   background: "#10b981",
   color: "white",
 };
+const badge = (status) => {
+  if (!status) return baseBadge;
+
+  if (status.includes("COMPLETE")) return greenBadge;
+  if (status.includes("MATCH")) return blueBadge;
+  if (status.includes("PENDING")) return yellowBadge;
+  if (status.includes("PROGRESS")) return orangeBadge;
+
+  return baseBadge;
+};
