@@ -8,14 +8,15 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.19.0",
-    "react-select": "^5.10.2"
+    "react-select": "^5.10.2",
+    "vite-plugin-compression": "^0.5.1"
   },
   "scripts": {
-  "dev": "vite",
-  "start": "vite",
-  "build": "vite build",
-  "preview": "vite preview"
-},
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
     "baseline-browser-mapping": "^2.10.12",

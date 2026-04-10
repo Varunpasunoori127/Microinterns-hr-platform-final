@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import viteCompression from 'vite-plugin-compression'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => ({
-  plugins: [react()],
+export default defineConfig(({ command }) => ({
+  plugins: [
+    react(),
+    command === 'build' && viteCompression() // only for production
+  ],
+
   server: {
     port: 5173,
     proxy: {
-      // Proxy API calls to backend (Spring Boot default port 8080)
-      // This keeps the frontend origin as http://localhost:5173 while forwarding
-      // /auth, /students, /cases, and other API requests to the backend during dev.
       '/auth': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -29,6 +30,19 @@ export default defineConfig(({ command, mode }) => ({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
+      }
+    }
+  },
+
+  build: {
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          mui: ['@mui/material', '@mui/icons-material'],
+        }
       }
     }
   }

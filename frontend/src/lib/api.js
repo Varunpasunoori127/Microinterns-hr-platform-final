@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL?.trim();
+const API_URL = import.meta.env.VITE_API_URL?.trim() || "";
 
 /* ================= TOKEN HELPERS ================= */
 
@@ -20,9 +20,7 @@ export const clearToken = () => {
 const api = {
 
   get: async (url) => {
-    const cleanUrl = url.trim(); // 🔥 FIX
-
-    console.log("GET URL:", `${API_URL}${cleanUrl}`);
+    const cleanUrl = url.trim();
 
     const res = await fetch(`${API_URL}${cleanUrl}`, {
       headers: {
@@ -30,15 +28,17 @@ const api = {
       }
     });
 
-    if (!res.ok) throw new Error("GET failed");
+    const text = await res.text();
 
-    return await res.json();
+    if (!res.ok) {
+      throw new Error(text || "GET failed");
+    }
+
+    return text ? JSON.parse(text) : {};
   },
 
   post: async (url, body) => {
-    const cleanUrl = url.trim(); // 🔥 FIX
-
-    console.log("POST URL:", `${API_URL}${cleanUrl}`);
+    const cleanUrl = url.trim();
 
     const res = await fetch(`${API_URL}${cleanUrl}`, {
       method: "POST",
@@ -55,13 +55,11 @@ const api = {
       throw new Error(text || "POST failed");
     }
 
-    return JSON.parse(text);
+    return text ? JSON.parse(text) : {};
   },
 
   del: async (url) => {
-    const cleanUrl = url.trim(); // 🔥 FIX
-
-    console.log("DELETE URL:", `${API_URL}${cleanUrl}`);
+    const cleanUrl = url.trim();
 
     const res = await fetch(`${API_URL}${cleanUrl}`, {
       method: "DELETE",
@@ -70,9 +68,13 @@ const api = {
       }
     });
 
-    if (!res.ok) throw new Error("DELETE failed");
+    const text = await res.text();
 
-    return await res.json();
+    if (!res.ok) {
+      throw new Error(text || "DELETE failed");
+    }
+
+    return text ? JSON.parse(text) : {};
   }
 
 };
