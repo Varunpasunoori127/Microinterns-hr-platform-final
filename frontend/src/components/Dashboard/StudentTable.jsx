@@ -88,8 +88,8 @@ export default function StudentTable({ students, onReassign, onApprove, onView }
                 style={{ ...td, borderRadius: "0 12px 12px 0" }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  
+                <div style={{display: "flex",  gap: 8, alignItems: "center", justifyContent: "flex-start"}}>
+              
                   <button
                     style={btnSecondary}
                     onClick={() => navigate(`/student/${s.id}`)}

@@ -230,9 +230,11 @@ const container = {
 const card = {
   width: "100%",
   maxWidth: "700px",
-  margin: "auto",
-  padding: "20px",
+  background: "white",
+  padding: "30px",
   borderRadius: "16px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+  border: "1px solid #f1f5f9"
 };
 
 const header = {
@@ -258,11 +260,9 @@ const progressFill = {
   background: "#2563eb",
   borderRadius: 999
 };
-const inputRow = {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap"
-};
+
+const inputRow = { display: "flex", gap: 10 };
+
 const input = {
   flex: 1,
   padding: 12,
@@ -277,10 +277,9 @@ const select = {
 };
 
 const addBtn = {
-  width: "100%",
   background: "#2563eb",
   color: "white",
-  padding: "12px",
+  padding: "12px 16px",
   borderRadius: 10,
   border: "none"
 };

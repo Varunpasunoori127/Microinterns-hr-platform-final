@@ -1,58 +1,8 @@
-/* 🔥 GLOBAL RESET */
 * {
   box-sizing: border-box;
 }
 
-/* 🔥 BODY */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-}
-
-/* 🔥 RESPONSIVE CONTAINER */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
-
-/* 🔥 FLEX HELPERS */
-.row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.col {
-  flex: 1;
-  min-width: 250px;
-}
-
-/* 🔥 BUTTON */
-button {
-  width: 100%;
-}
-
-/* 🔥 INPUT */
-input, select {
-  width: 100%;
-}
-
-/* 🔥 MOBILE FIX */
-@media (max-width: 600px) {
-  .row {
-    flex-direction: column;
-  }
-
-  h1, h2 {
-    font-size: 18px;
-  }
-
-  .container {
-    padding: 15px;
-  }
-}
-body {
-  overflow-x: hidden;
 }
