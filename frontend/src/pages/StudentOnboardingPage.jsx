@@ -234,7 +234,7 @@ export default function StudentOnboardingPage() {
     console.log("SUCCESS:", data);
 
     // ✅ move to next step
-    setStep("skills");   // or navigate(`/skills/${token}`)
+    setSubmitted(true);    // or navigate(`/skills/${token}`)
 
   } catch (err) {
     console.error(err);
