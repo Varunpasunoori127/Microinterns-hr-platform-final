@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { clearToken } from "../lib/api";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const signOut = () => {
     clearToken();
@@ -12,23 +23,44 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="container">
-      {/* 🔥 DARK SIDEBAR ONLY */}
-      <div style={sidebar}>
-        <div style={logo}>MicroInterns</div>
-
-        <div style={nav}>
-          <NavItem label="Dashboard" onClick={() => navigate("/dashboard")} />
-          <NavItem label="Students" onClick={() => navigate("/dashboard")} />
-          <NavItem label="Mentors" onClick={() => navigate("/mentors")} />
-          <NavItem label="Reports" onClick={() => navigate("/reports")} />
-          <NavItem label="Settings" onClick={() => navigate("/settings")} />
+    <div style={{ ...container, flexDirection: isMobile ? "column" : "row" }}>
+      
+      {/* 🔥 TOPBAR FOR MOBILE */}
+      {isMobile && (
+        <div style={mobileTopbar}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={menuBtn}>
+            ☰
+          </button>
+          <div style={{ fontWeight: 700 }}>MicroInterns</div>
         </div>
+      )}
 
-        <div style={logout} onClick={signOut}>
-          Logout
+      {/* 🔥 SIDEBAR */}
+      {(sidebarOpen || !isMobile) && (
+        <div
+          style={{
+            ...sidebar,
+            position: isMobile ? "absolute" : "relative",
+            width: isMobile ? "70%" : 240,
+            height: isMobile ? "100%" : "auto",
+            zIndex: 1000,
+          }}
+        >
+          <div style={logo}>MicroInterns</div>
+
+          <div style={nav}>
+            <NavItem label="Dashboard" onClick={() => navigate("/dashboard")} />
+            <NavItem label="Students" onClick={() => navigate("/dashboard")} />
+            <NavItem label="Mentors" onClick={() => navigate("/mentors")} />
+            <NavItem label="Reports" onClick={() => navigate("/reports")} />
+            <NavItem label="Settings" onClick={() => navigate("/settings")} />
+          </div>
+
+          <div style={logout} onClick={signOut}>
+            Logout
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 🔥 MAIN CONTENT */}
       <div style={main}>
@@ -56,8 +88,24 @@ const container = {
   background: "#f8fafc",
 };
 
+const mobileTopbar = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "12px 16px",
+  background: "#0f172a",
+  color: "white",
+};
+
+const menuBtn = {
+  fontSize: 20,
+  background: "none",
+  border: "none",
+  color: "white",
+  cursor: "pointer",
+};
+
 const sidebar = {
-  width: 240,
   background: "#0f172a",
   color: "white",
   padding: 24,
@@ -95,5 +143,5 @@ const logout = {
 
 const main = {
   flex: 1,
-  padding: 30,
+  padding: 20,
 };
