@@ -1,21 +1,18 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL?.trim();
 
 /* ================= TOKEN HELPERS ================= */
 
-// ✅ Save token
 export const setToken = (token) => {
   localStorage.setItem("token", token);
 };
 
-// ✅ Get token
 export const getToken = () => {
   return localStorage.getItem("token");
 };
 
-// ✅ Clear token (logout)
 export const clearToken = () => {
   localStorage.removeItem("token");
-  localStorage.removeItem("microinterns_user"); // optional
+  localStorage.removeItem("microinterns_user");
 };
 
 /* ================= API ================= */
@@ -23,7 +20,11 @@ export const clearToken = () => {
 const api = {
 
   get: async (url) => {
-    const res = await fetch(`${API_URL}${url}`, {
+    const cleanUrl = url.trim(); // 🔥 FIX
+
+    console.log("GET URL:", `${API_URL}${cleanUrl}`);
+
+    const res = await fetch(`${API_URL}${cleanUrl}`, {
       headers: {
         Authorization: `Bearer ${getToken()}`
       }
@@ -35,25 +36,34 @@ const api = {
   },
 
   post: async (url, body) => {
-  const res = await fetch(`${API_URL}${url}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`
-    },
-    body: JSON.stringify(body)
-  });
+    const cleanUrl = url.trim(); // 🔥 FIX
 
-  const text = await res.text(); // 👈 get raw response
+    console.log("POST URL:", `${API_URL}${cleanUrl}`);
 
-  if (!res.ok) {
-    throw new Error(text || "POST failed"); // 👈 show backend error
-  }
+    const res = await fetch(`${API_URL}${cleanUrl}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(body)
+    });
 
-  return JSON.parse(text);
-},
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text || "POST failed");
+    }
+
+    return JSON.parse(text);
+  },
+
   del: async (url) => {
-    const res = await fetch(`${API_URL}${url}`, {
+    const cleanUrl = url.trim(); // 🔥 FIX
+
+    console.log("DELETE URL:", `${API_URL}${cleanUrl}`);
+
+    const res = await fetch(`${API_URL}${cleanUrl}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${getToken()}`
