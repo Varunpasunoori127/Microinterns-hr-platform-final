@@ -22,13 +22,10 @@ export default function StudentSkillsPage() {
 
     api.get(`/students/onboarding/${token}`)
       .then((res) => {
-        console.log("Student loaded:", res);
-
         if (!res) {
           alert("Student not loaded properly.");
           return;
         }
-
         setStudent(res);
       })
       .catch(() => {
@@ -36,38 +33,16 @@ export default function StudentSkillsPage() {
       });
   }, [token]);
 
-  /* ---------- HELPER: GET STUDENT ID SAFELY ---------- */
-  const getStudentId = () => {
-    return student?.id || student?.studentId;
-  };
-
-  /* ---------- ADD SKILL ---------- */
-  const addSkill = async () => {
-    const studentId = getStudentId();
-
-    if (!skill || !studentId) {
-      console.log("Missing studentId or skill");
-      return;
-    }
+  /* ---------- ADD SKILL (LOCAL ONLY) ---------- */
+  const addSkill = () => {
+    if (!skill) return;
 
     if (skills.some(s => s.skill.toLowerCase() === skill.toLowerCase())) {
       return;
     }
 
-    try {
-      const res = await api.post("/student-skills", {
-        studentId: studentId,
-        skill,
-        level
-      });
-
-      setSkills(prev => [...prev, res || { skill, level }]);
-      setSkill("");
-
-    } catch (err) {
-      console.error("Add skill error:", err);
-      alert("Failed to add skill");
-    }
+    setSkills(prev => [...prev, { skill, level }]);
+    setSkill("");
   };
 
   /* ---------- REMOVE SKILL ---------- */
@@ -75,22 +50,28 @@ export default function StudentSkillsPage() {
     setSkills(prev => prev.filter((_, i) => i !== index));
   };
 
-  /* ---------- FIND MATCH ---------- */
+  /* ---------- SAVE SKILLS + MATCH ---------- */
   const findMatches = async () => {
-    const studentId = getStudentId();
-
-    if (!studentId || skills.length === 0) return;
-
     try {
+      if (skills.length === 0) return;
+
       setLoadingMatch(true);
 
-      const data = await api.get(`/match/${studentId}`);
-      setMatches(data || []);
+      const res = await api.post(`/students/skills/${token}`, {
+        skills: skills.map(s => s.skill)
+      });
+
+      setMatches([
+        {
+          name: res.mentor,
+          score: 100
+        }
+      ]);
 
       setStep("match");
 
     } catch (err) {
-      console.error("Match error:", err);
+      console.error(err);
       alert("Failed to find matches");
     } finally {
       setLoadingMatch(false);
@@ -99,13 +80,11 @@ export default function StudentSkillsPage() {
 
   /* ---------- CONFIRM ---------- */
   const confirmMentor = async () => {
-    const studentId = getStudentId();
-
     try {
       const best = matches[0];
 
       await api.post("/match/assign", {
-        studentId: studentId,
+        studentId: student.id,
         mentorId: best.id
       });
 
@@ -113,7 +92,7 @@ export default function StudentSkillsPage() {
       setStep("done");
 
     } catch (err) {
-      console.error("Assign error:", err);
+      console.error(err);
       alert("Failed to assign mentor");
     }
   };
