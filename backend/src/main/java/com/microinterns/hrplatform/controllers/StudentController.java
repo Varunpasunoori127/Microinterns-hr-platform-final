@@ -104,6 +104,7 @@ public class StudentController {
         return ResponseEntity.ok(Map.of(
                 "id", saved.getId(),
                 "onboardingToken", saved.getOnboardingToken()
+
         ));
     }
 
@@ -181,7 +182,8 @@ public class StudentController {
 
     return ResponseEntity.ok(Map.of(
             "message", "Skills saved",
-            "mentor", bestMentor != null ? bestMentor.getName() : "No match"
+            "mentor", bestMentor != null ? bestMentor.getName() : "No match",
+            "mentorId", bestMentor != null ? bestMentor.getId() : null
     ));
 }
     // =========================
