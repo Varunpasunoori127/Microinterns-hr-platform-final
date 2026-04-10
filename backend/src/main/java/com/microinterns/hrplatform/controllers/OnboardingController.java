@@ -6,7 +6,6 @@ import com.microinterns.hrplatform.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -30,17 +29,16 @@ public class OnboardingController {
             return ResponseEntity.badRequest().body("Invalid token");
         }
 
-        return ResponseEntity.ok(student); // ✅ FIXED
+        return ResponseEntity.ok(student);
     }
 
     // =========================
-    // SUBMIT ONBOARDING FORM
+    // SUBMIT ONBOARDING FORM (FINAL FIXED)
     // =========================
     @PostMapping("/{token}")
     public ResponseEntity<?> submitOnboarding(
             @PathVariable String token,
-            @RequestParam Map<String, String> params,
-            @RequestParam(required = false) MultipartFile file
+            @RequestBody Map<String, String> params   // ✅ FIXED (JSON)
     ) {
 
         Student student = studentRepository.findByOnboardingToken(token)
@@ -53,9 +51,8 @@ public class OnboardingController {
         // =========================
         // BASIC
         // =========================
-        
         student.setName(params.getOrDefault("name", ""));
-        student.setEmail(params.getOrDefault("email", "")); 
+        student.setEmail(params.getOrDefault("email", ""));   // ✅ NOW WORKS
         student.setPhone(params.getOrDefault("phone", ""));
         student.setDob(params.getOrDefault("dob", ""));
 
@@ -102,13 +99,8 @@ public class OnboardingController {
         student.setIfscCode(params.getOrDefault("ifscCode", ""));
 
         // =========================
-        // FILE
-        // =========================
-        
-        // =========================
         // STATUS
         // =========================
-        
         student.setOnboardingCompleted(true);
         student.setOnboardingStatus("ONBOARDING_COMPLETE");
 
