@@ -104,7 +104,7 @@ export default function StudentSkillsPage() {
   /* ================= FORM ================= */
   if (step === "form") {
     return (
-      <div style={container}>
+      <div className="container">
         <div style={card}>
 
           <div style={header}>
@@ -174,7 +174,7 @@ export default function StudentSkillsPage() {
   /* ================= MATCH ================= */
   if (step === "match") {
     return (
-      <div style={container}>
+      <div className="container">
         <div style={card}>
 
           <div style={header}>
@@ -205,7 +205,7 @@ export default function StudentSkillsPage() {
   /* ================= DONE ================= */
   if (step === "done") {
     return (
-      <div style={container}>
+      <div className="container">
         <div style={{ ...card, textAlign: "center" }}>
           <h2 style={{ color: "#10b981" }}>🎉 You Are Assigned!</h2>
           <h1>{assignedMentor.name}</h1>
@@ -230,11 +230,9 @@ const container = {
 const card = {
   width: "100%",
   maxWidth: "700px",
-  background: "white",
-  padding: "30px",
+  margin: "auto",
+  padding: "20px",
   borderRadius: "16px",
-  boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
-  border: "1px solid #f1f5f9"
 };
 
 const header = {
@@ -260,9 +258,11 @@ const progressFill = {
   background: "#2563eb",
   borderRadius: 999
 };
-
-const inputRow = { display: "flex", gap: 10 };
-
+const inputRow = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap"
+};
 const input = {
   flex: 1,
   padding: 12,
@@ -277,9 +277,10 @@ const select = {
 };
 
 const addBtn = {
+  width: "100%",
   background: "#2563eb",
   color: "white",
-  padding: "12px 16px",
+  padding: "12px",
   borderRadius: 10,
   border: "none"
 };

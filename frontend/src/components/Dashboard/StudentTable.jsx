@@ -134,11 +134,11 @@ export default function StudentTable({ students, onReassign, onApprove, onView }
 /* ---------- STYLES ---------- */
 
 const card = {
-  background: "white",
-  padding: 24,
-  borderRadius: 16,
-  boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
-  border: "1px solid #f1f5f9",
+  width: "100%",
+  maxWidth: "700px",
+  margin: "auto",
+  padding: "20px",
+  borderRadius: "16px",
 };
 
 const header = {

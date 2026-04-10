@@ -25,9 +25,10 @@ export default function Reports() {
   );
 }
 
-const card={
-  background:"white",
-  padding:20,
-  marginTop:15,
-  borderRadius:10
+const card = {
+  width: "100%",
+  maxWidth: "700px",
+  margin: "auto",
+  padding: "20px",
+  borderRadius: "16px",
 };

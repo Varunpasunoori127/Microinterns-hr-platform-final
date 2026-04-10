@@ -43,13 +43,11 @@ export default function MentorCard({ mentor, onAssign }) {
 
 /* STYLES */
 const card = {
-  background: "white",
-  padding: 20,
-  borderRadius: 12,
-  boxShadow: "0 6px 18px rgba(0,0,0,0.05)",
-  width: 300,
-  display: "flex",
-  flexDirection: "column",
+  width: "100%",
+  maxWidth: "700px",
+  margin: "auto",
+  padding: "20px",
+  borderRadius: "16px",
 };
 
 const name = {

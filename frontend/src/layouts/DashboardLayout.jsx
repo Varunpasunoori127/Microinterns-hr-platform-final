@@ -12,7 +12,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div style={container}>
+    <div className="container">
       {/* 🔥 DARK SIDEBAR ONLY */}
       <div style={sidebar}>
         <div style={logo}>MicroInterns</div>

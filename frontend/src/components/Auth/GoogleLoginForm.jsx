@@ -2,9 +2,6 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
 export default function GoogleLoginButton() {
-  console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-  console.log("ORIGIN:", window.location.origin);
-
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {
@@ -36,24 +33,10 @@ export default function GoogleLoginButton() {
 
       console.log("LOGIN RESPONSE:", data);
 
-      /* 🔥 SAVE TOKEN (FIXED) */
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      } else {
-        console.error("Token missing from backend response");
-        return;
-      }
+      // ✅ Save user data
+      localStorage.setItem("microinterns_user", JSON.stringify(data));
 
-      /* 🔥 SAVE USER INFO */
-      localStorage.setItem(
-        "microinterns_user",
-        JSON.stringify({
-          email: data.email,
-          name: data.name,
-        })
-      );
-
-      /* 🔥 REDIRECT LOGIC */
+      // ✅ Redirect correctly
       if (!data.onboardingCompleted && data.onboardingToken) {
         navigate(`/onboarding/${data.onboardingToken}`);
       } else {
@@ -69,10 +52,7 @@ export default function GoogleLoginButton() {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "20px",
-        width: "100%",
+        justifyContent: "center",
         marginTop: "20px",
       }}
     >
