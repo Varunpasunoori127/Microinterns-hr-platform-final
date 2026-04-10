@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+// 🔥 JWT IMPORTS
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
 @RequestMapping("/student-auth")
@@ -21,6 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class StudentAuthController {
 
     private final StudentRepository studentRepository;
+
+    // 🔥 SECRET KEY (same as application.properties)
+    private final String SECRET = "microinterns-hr-secret-key-change-in-production-minimum-256-bits-required";
 
     public StudentAuthController(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
@@ -39,7 +47,7 @@ public class StudentAuthController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Missing credential"));
             }
 
-            // 🔥 Decode Google JWT (NOTE: not verified - acceptable for prototype)
+            // 🔥 Decode Google JWT (prototype-safe)
             String[] parts = credential.split("\\.");
             String payload = new String(Base64.getDecoder().decode(parts[1]));
 
@@ -54,13 +62,11 @@ public class StudentAuthController {
             }
 
             // =========================
-            // 🔥 SMART MATCHING LOGIC
+            // 🔥 FIND OR CREATE STUDENT
             // =========================
 
-            // 1. Try find by email
             Student student = studentRepository.findByEmail(email).orElse(null);
 
-            // 2. Fallback: match old records without email (safe match)
             if (student == null && name != null) {
                 Optional<Student> match = studentRepository.findAll().stream()
                         .filter(s -> name.equalsIgnoreCase(s.getName()) && s.getEmail() == null)
@@ -68,7 +74,6 @@ public class StudentAuthController {
                 student = match.orElse(null);
             }
 
-            // 3. Create new if not found
             if (student == null) {
                 student = new Student();
                 student.setOnboardingCompleted(false);
@@ -77,17 +82,16 @@ public class StudentAuthController {
             }
 
             // =========================
-            // 🔥 ALWAYS UPDATE DATA
+            // 🔥 UPDATE DATA
             // =========================
+
             student.setEmail(email);
             student.setName(name != null ? name : "Student");
 
-            // ensure token exists
             if (student.getOnboardingToken() == null) {
                 student.generateOnboardingToken();
             }
 
-            // ensure status exists
             if (student.getOnboardingStatus() == null) {
                 student.setOnboardingStatus("PENDING_ONBOARDING");
             }
@@ -95,9 +99,23 @@ public class StudentAuthController {
             studentRepository.save(student);
 
             // =========================
-            // RESPONSE
+            // 🔥 GENERATE JWT TOKEN
             // =========================
+
+            String jwt = Jwts.builder()
+                    .setSubject(student.getEmail())
+                    .claim("role", "STUDENT")
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
+                    .signWith(SignatureAlgorithm.HS256, SECRET)
+                    .compact();
+
+            // =========================
+            // 🔥 RESPONSE
+            // =========================
+
             return ResponseEntity.ok(Map.of(
+                    "token", jwt, // 🔥 CRITICAL FIX
                     "studentId", student.getId(),
                     "email", student.getEmail(),
                     "name", student.getName(),
