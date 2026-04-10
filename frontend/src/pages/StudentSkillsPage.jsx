@@ -104,7 +104,7 @@ export default function StudentSkillsPage() {
   /* ================= FORM ================= */
   if (step === "form") {
     return (
-      <div className="container">
+      <div style={container}>
         <div style={card}>
 
           <div style={header}>
@@ -174,7 +174,7 @@ export default function StudentSkillsPage() {
   /* ================= MATCH ================= */
   if (step === "match") {
     return (
-      <div className="container">
+      <div style={container}>
         <div style={card}>
 
           <div style={header}>
@@ -205,7 +205,7 @@ export default function StudentSkillsPage() {
   /* ================= DONE ================= */
   if (step === "done") {
     return (
-      <div className="container">
+      <div style={container}>
         <div style={{ ...card, textAlign: "center" }}>
           <h2 style={{ color: "#10b981" }}>🎉 You Are Assigned!</h2>
           <h1>{assignedMentor.name}</h1>
