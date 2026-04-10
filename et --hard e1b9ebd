@@ -1,0 +1,33 @@
+[33m56834d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fix: correct jwt signing for google login
+[33m2ecfc17[m feat: improve app startup with backend auto-wake and global loading screen
+[33m403c096[m feat: improve app startup with backend auto-wake and global loading screen
+[33mdc99064[m fix: correct jwt signing for google login
+[33m866dfed[m fix: correct jwt signing for google login
+[33m33c484e[m fix: correct jwt signing for google login
+[33m6af468b[m feat: improve app startup with backend auto-wake and global loading screen
+[33m3fa204b[m fix: correct jwt signing for google login
+[33m51c7d71[m fix: correct jwt signing for google login
+[33m4226cf8[m fix: add jwt token to google login
+[33me1b9ebd[m feat: complete authentication, onboarding, matching system and deployment fixes
+[33m291c903[m fix: resolve 415 error for auth login
+[33mec8df0f[m fix: add jwt token to google login
+[33m2b307fc[m feat: improve app startup with backend auto-wake and global loading screen
+[33m96ed8c5[m remove localhost api references
+[33m3039960[m remove localhost api references
+[33m7ace57d[m remove localhost api references
+[33m55888eb[m remove localhost api references
+[33m2fa8766[m remove localhost api references
+[33m62dbef6[m remove localhost api references
+[33me61d7db[m remove localhost api references
+[33m3a85eaa[m fix docker build properly
+[33m0c8f981[m fix docker build properly
+[33me1b364b[m allow debug endpoint
+[33m0e3eabe[m fix vercel routing
+[33m57f5a36[m fix vercel routing
+[33m7c8f85e[m fix vercel routing
+[33me5d5260[m improve login debug
+[33mccbf464[m fix cors for vercel
+[33mef2f928[m fix docker build
+[33m244e46f[m Final system complete
+[33mcf0c2a0[m Final system complete
+[33m4b937e8[m Final dissertation project
