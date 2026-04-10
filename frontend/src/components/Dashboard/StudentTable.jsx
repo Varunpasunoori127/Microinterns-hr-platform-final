@@ -132,20 +132,26 @@ export default function StudentTable({ students, onReassign, onApprove, onView }
   );
 }
 /* ---------- STYLES ---------- */
-
+/* ---------- CARD ---------- */
 const card = {
   width: "100%",
-  maxWidth: "700px",
-  margin: "auto",
-  padding: "20px",
+  padding: "24px",
   borderRadius: "16px",
+  background: "#ffffff",
+  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
 };
 
+/* ---------- HEADER ---------- */
 const header = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: 16,
+  marginBottom: 20,
+};
+
+const title = {
+  fontSize: 20,
+  fontWeight: 700,
 };
 
 const count = {
@@ -153,51 +159,36 @@ const count = {
   color: "#64748b",
 };
 
-const title = {
-  fontSize: 18,
-  fontWeight: 700,
-};
-
+/* ---------- TABLE ---------- */
 const table = {
   width: "100%",
   borderCollapse: "separate",
-  borderSpacing: "0 10px",
+  borderSpacing: "0 12px",
 };
 
 const th = {
   textAlign: "left",
-  padding: "10px 14px",
+  padding: "10px 16px",
   color: "#64748b",
   fontWeight: 600,
   fontSize: 13,
 };
 
+/* ---------- ROW ---------- */
+const row = {
+  transition: "all 0.2s ease",
+  cursor: "pointer",
+};
+
+/* ---------- CELL ---------- */
 const td = {
-  padding: "14px 16px",
-  background: "white",
-  borderTop: "1px solid #f1f5f9",
-  borderBottom: "1px solid #f1f5f9",
+  padding: "16px 18px",
+  background: "#ffffff",
   fontSize: 14,
   color: "#334155",
 };
 
-const row = {
-  transition: "all 0.2s ease",
-  cursor: "pointer",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
-};
-
-const badge = (status) => {
-  if (!status) return baseBadge;
-
-  if (status.includes("COMPLETE")) return greenBadge;
-  if (status.includes("MATCH")) return blueBadge;
-  if (status.includes("PENDING")) return yellowBadge;
-  if (status.includes("PROGRESS")) return orangeBadge;
-
-  return baseBadge;
-};
-
+/* ---------- BADGES ---------- */
 const baseBadge = {
   padding: "6px 12px",
   borderRadius: 999,
@@ -249,8 +240,7 @@ const unassigned = {
   fontSize: 12,
 };
 
-/* BUTTONS */
-
+/* ---------- BUTTONS ---------- */
 const baseBtn = {
   padding: "6px 12px",
   borderRadius: 8,
