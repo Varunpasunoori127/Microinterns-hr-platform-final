@@ -32,17 +32,17 @@ function App() {
   console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   /* 🔥 AUTO WAKE BACKEND (IMPORTANT) */
-  useEffect(() => {
-    fetch("https://microinterns-hr-platform-final.onrender.com")
-      .then(() => {
-        console.log("Backend awake ✅");
-        setLoading(false);
-      })
-      .catch(() => {
-        console.log("Waking backend...");
-        setTimeout(() => setLoading(false), 2000);
-      });
-  }, []);
+   useEffect(() => {
+  setLoading(true);
+
+  fetch("https://microinterns-hr-platform-final.onrender.com")
+    .then(() => {
+      setLoading(false);
+    })
+    .catch(() => {
+      setTimeout(() => setLoading(false), 2000);
+    });
+}, []);
 
   /* 🔥 GLOBAL LOADING SCREEN */
   if (loading) {
@@ -56,7 +56,7 @@ function App() {
         background: "#f9fafb"
       }}>
         <h2 style={{ marginBottom: 10 }}>MicroInterns</h2>
-        <p>Starting system... ⏳</p>
+        <p>Waking up server, please wait a moment</p>
       </div>
     );
   }
