@@ -209,64 +209,41 @@ export default function StudentOnboardingPage() {
   try {
     setLoading(true);
 
-    const formData = new FormData();
+    // 🔥 build final payload
+    const payload = {
+      ...form,
+      email: displayEmail   // ✅ VERY IMPORTANT (ensures email is sent)
+    };
 
-    // 🔥 IMPORTANT: MATCH BACKEND KEYS EXACTLY
-    formData.append("name", form.name);
-    formData.append("preferredName", form.preferredName);
-    formData.append("email", form.email);
-    formData.append("phone", form.phone);
-    formData.append("dob", form.dob);
+    console.log("SUBMITTING:", payload); // debug
 
-    formData.append("nationality", form.nationality);
-    formData.append("gender", form.gender);
-
-    formData.append("address", form.address);
-    formData.append("city", form.city);
-    formData.append("postcode", form.postcode);
-
-    formData.append("university", form.university);
-    formData.append("course", form.course);
-    formData.append("year", form.year);
-    formData.append("educationDetails", form.educationDetails);
-
-    formData.append("rightToWork", form.rightToWork);
-    formData.append("workExperience", form.workExperience);
-
-    // ⚠️ BACKEND USES DIFFERENT NAMES
-    formData.append("emergencyName", form.emergencyContactName);
-    formData.append("emergencyPhone", form.emergencyContactPhone);
-    formData.append("emergencyRelation", form.emergencyContactRelation);
-
-    formData.append("bankName", form.bankName);
-    formData.append("accountNumber", form.bankAccountNumber);
-    formData.append("sortCode", form.sortCode);
-
-    // IFSC optional (not in backend yet, but safe)
-    if (form.ifscCode) {
-      formData.append("ifscCode", form.ifscCode);
-    }
-
-    const res = await fetch(`${API_URL}/students/onboarding/${token}`, {
-      method: "POST",
-      body: formData   // ❗ NO headers here
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/students/onboarding/${token}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"   // ✅ FIXES 415 ERROR
+        },
+        body: JSON.stringify(payload)          // ✅ SEND JSON
+      }
+    );
 
     if (!res.ok) throw new Error("Submission failed");
 
-    const result = await res.json();
+    const data = await res.json();
+    console.log("SUCCESS:", data);
 
-    console.log("SUCCESS:", result);
-
-    setSubmitted(true);
+    // ✅ move to next step
+    setStep("skills");   // or navigate(`/skills/${token}`)
 
   } catch (err) {
     console.error(err);
-    setError("Failed to submit form");
+    setError("Submission failed");
   } finally {
     setLoading(false);
   }
 };
+  
   /* ================= CLEAR ================= */
   const clearForm = () => {
     setForm({
