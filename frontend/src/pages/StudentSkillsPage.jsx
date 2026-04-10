@@ -22,10 +22,13 @@ export default function StudentSkillsPage() {
 
     api.get(`/students/onboarding/${token}`)
       .then((res) => {
-        if (!res || !res.id) {
+        console.log("Student loaded:", res);
+
+        if (!res) {
           alert("Student not loaded properly.");
           return;
         }
+
         setStudent(res);
       })
       .catch(() => {
@@ -33,9 +36,19 @@ export default function StudentSkillsPage() {
       });
   }, [token]);
 
+  /* ---------- HELPER: GET STUDENT ID SAFELY ---------- */
+  const getStudentId = () => {
+    return student?.id || student?.studentId;
+  };
+
   /* ---------- ADD SKILL ---------- */
   const addSkill = async () => {
-    if (!skill || !student?.id) return;
+    const studentId = getStudentId();
+
+    if (!skill || !studentId) {
+      console.log("Missing studentId or skill");
+      return;
+    }
 
     if (skills.some(s => s.skill.toLowerCase() === skill.toLowerCase())) {
       return;
@@ -43,15 +56,17 @@ export default function StudentSkillsPage() {
 
     try {
       const res = await api.post("/student-skills", {
-        studentId: student.id,
+        studentId: studentId,
         skill,
         level
       });
 
       setSkills(prev => [...prev, res || { skill, level }]);
       setSkill("");
+
     } catch (err) {
-      console.error(err);
+      console.error("Add skill error:", err);
+      alert("Failed to add skill");
     }
   };
 
@@ -62,18 +77,21 @@ export default function StudentSkillsPage() {
 
   /* ---------- FIND MATCH ---------- */
   const findMatches = async () => {
-    try {
-      if (!student?.id || skills.length === 0) return;
+    const studentId = getStudentId();
 
+    if (!studentId || skills.length === 0) return;
+
+    try {
       setLoadingMatch(true);
 
-      const data = await api.get(`/match/${student.id}`);
+      const data = await api.get(`/match/${studentId}`);
       setMatches(data || []);
 
       setStep("match");
 
     } catch (err) {
-      console.error(err);
+      console.error("Match error:", err);
+      alert("Failed to find matches");
     } finally {
       setLoadingMatch(false);
     }
@@ -81,11 +99,13 @@ export default function StudentSkillsPage() {
 
   /* ---------- CONFIRM ---------- */
   const confirmMentor = async () => {
+    const studentId = getStudentId();
+
     try {
       const best = matches[0];
 
       await api.post("/match/assign", {
-        studentId: student.id,
+        studentId: studentId,
         mentorId: best.id
       });
 
@@ -93,7 +113,8 @@ export default function StudentSkillsPage() {
       setStep("done");
 
     } catch (err) {
-      console.error(err);
+      console.error("Assign error:", err);
+      alert("Failed to assign mentor");
     }
   };
 
@@ -313,7 +334,7 @@ const submitBtn = {
 const note = {
   textAlign: "center",
   fontSize: 12,
-  color: "#64748b",
+  color: "#051e41",
   marginTop: 10
 };
 
