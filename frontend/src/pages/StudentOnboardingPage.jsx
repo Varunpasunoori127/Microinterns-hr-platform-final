@@ -156,10 +156,10 @@ export default function StudentOnboardingPage() {
         return form.address && form.city && form.postcode;
 
       case 5:
-        return form.university && form.course && form.year && form.educationDetails;
+        return form.university && form.course && form.year;
 
       case 6:
-        return form.rightToWork && form.workExperience;
+        return form.rightToWork; //work experience optional
 
       case 7:
         return form.emergencyContactName && form.emergencyContactPhone && form.emergencyContactRelation;

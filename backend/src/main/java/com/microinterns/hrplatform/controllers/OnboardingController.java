@@ -86,15 +86,14 @@ public class OnboardingController {
         // =========================
         // EMERGENCY
         // =========================
-        student.setEmergencyContactName(params.getOrDefault("emergencyName", ""));
-        student.setEmergencyContactPhone(params.getOrDefault("emergencyPhone", ""));
+        // EMERGENCY
+        student.setEmergencyContactName(params.getOrDefault("emergencyContactName", ""));
+        student.setEmergencyContactPhone(params.getOrDefault("emergencyContactPhone", ""));
         student.setEmergencyContactRelation(params.getOrDefault("emergencyContactRelation", ""));
 
-        // =========================
-        // BANK
-        // =========================
+       // BANK
         student.setBankName(params.getOrDefault("bankName", ""));
-        student.setBankAccountNumber(params.getOrDefault("accountNumber", ""));
+        student.setBankAccountNumber(params.getOrDefault("bankAccountNumber", ""));
         student.setSortCode(params.getOrDefault("sortCode", ""));
         student.setIfscCode(params.getOrDefault("ifscCode", ""));
 
