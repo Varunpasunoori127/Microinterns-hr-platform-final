@@ -15,6 +15,114 @@ export default function StudentSkillsPage() {
   const [loadingMatch, setLoadingMatch] = useState(false);
 
   const [step, setStep] = useState("form");
+  const [suggestions, setSuggestions] = useState([]);
+
+  const SKILLS = [
+  // 💻 TECH
+  "Java", "JavaScript", "Python", "C++", "C#", "TypeScript",
+  "React", "Angular", "Next.js", "Node.js", "Spring Boot",
+  "HTML", "CSS", "REST APIs", "GraphQL",
+  "SQL", "PostgreSQL", "MySQL", "MongoDB",
+  "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud",
+  "Git", "CI/CD", "Microservices", "Cybersecurity",
+  "Machine Learning", "Data Analysis", "Data Science",
+  "Artificial Intelligence", "Deep Learning",
+  "Pandas", "NumPy", "TensorFlow", "PyTorch",
+
+  // 📊 BUSINESS & MANAGEMENT
+  "Project Management", "Business Analysis", "Strategic Planning",
+  "Operations Management", "Risk Management",
+  "Leadership", "Team Management", "Decision Making",
+  "Entrepreneurship", "Change Management",
+  "Supply Chain Management", "Logistics",
+  "Procurement", "Quality Assurance",
+
+  // 💰 FINANCE & ACCOUNTING
+  "Accounting", "Financial Analysis", "Budgeting",
+  "Forecasting", "Taxation", "Auditing",
+  "Investment Analysis", "Banking",
+  "Payroll Management", "Cost Accounting",
+
+  // 📈 MARKETING & SALES
+  "Digital Marketing", "SEO", "SEM", "Content Marketing",
+  "Social Media Marketing", "Email Marketing",
+  "Brand Management", "Market Research",
+  "Sales", "Lead Generation", "CRM",
+  "Customer Relationship Management",
+  "Copywriting", "Advertising",
+
+  // 🎨 DESIGN & CREATIVE
+  "UI/UX Design", "Graphic Design", "Figma",
+  "Adobe Photoshop", "Adobe Illustrator",
+  "Video Editing", "Animation", "Photography",
+  "Product Design", "Web Design",
+
+  // 🏥 HEALTHCARE & MEDICAL
+  "Patient Care", "Clinical Research",
+  "Medical Coding", "Medical Billing",
+  "Pharmacy", "Nursing", "Surgery Assistance",
+  "Public Health", "Healthcare Management",
+  "First Aid", "Emergency Response",
+
+  // 🌱 AGRICULTURE & ENVIRONMENT
+  "Agriculture", "Crop Management",
+  "Soil Science", "Irrigation Systems",
+  "Farm Management", "Agribusiness",
+  "Sustainable Farming", "Horticulture",
+  "Animal Husbandry", "Dairy Farming",
+  "Environmental Science", "Forestry",
+  "Fisheries", "Organic Farming",
+
+  // ⚙️ ENGINEERING
+  "Mechanical Engineering", "Electrical Engineering",
+  "Civil Engineering", "Structural Design",
+  "AutoCAD", "SolidWorks",
+  "Robotics", "Embedded Systems",
+  "Control Systems", "Manufacturing",
+
+  // 📚 EDUCATION & TRAINING
+  "Teaching", "Curriculum Development",
+  "Instructional Design", "E-Learning",
+  "Classroom Management", "Tutoring",
+  "Research", "Academic Writing",
+
+  // ⚖️ LAW & ADMINISTRATION
+  "Legal Research", "Contract Management",
+  "Compliance", "Public Administration",
+  "Policy Analysis", "Documentation",
+
+  // 🧠 SOFT SKILLS
+  "Communication", "Problem Solving",
+  "Critical Thinking", "Time Management",
+  "Adaptability", "Creativity",
+  "Collaboration", "Conflict Resolution",
+  "Emotional Intelligence",
+
+  // 🏨 HOSPITALITY & SERVICE
+  "Customer Service", "Hospitality Management",
+  "Event Planning", "Tourism Management",
+  "Food Safety", "Catering",
+
+  // 🏗️ CONSTRUCTION & TRADES
+  "Construction Management", "Carpentry",
+  "Plumbing", "Welding",
+  "Site Management", "Blueprint Reading",
+
+  // 🚚 TRANSPORT & LOGISTICS
+  "Driving", "Fleet Management",
+  "Warehouse Management",
+  "Inventory Management",
+
+  // 🛍️ RETAIL & E-COMMERCE
+  "Retail Management", "Merchandising",
+  "E-commerce", "Shopify",
+  "Product Listing", "Customer Support",
+
+  // 🔬 SCIENCE & LAB
+  "Laboratory Skills", "Biotechnology",
+  "Chemistry", "Physics",
+  "Data Collection", "Experiment Design"
+];
 
   /* ---------- LOAD STUDENT ---------- */
   useEffect(() => {
@@ -43,7 +151,22 @@ export default function StudentSkillsPage() {
 
     setSkills(prev => [...prev, { skill, level }]);
     setSkill("");
+    setSuggestions([]);
   };
+  const handleSkillChange = (value) => {
+  setSkill(value);
+
+  if (!value) {
+    setSuggestions([]);
+    return;
+  }
+
+  const filtered = SKILLS
+    .filter(s => s.toLowerCase().includes(value.toLowerCase()))
+    .slice(0, 8); // limit results
+
+  setSuggestions(filtered);
+};
 
   /* ---------- REMOVE SKILL ---------- */
   const removeSkill = (index) => {
@@ -102,119 +225,198 @@ export default function StudentSkillsPage() {
   if (!student) return <p style={{ padding: 40 }}>Loading...</p>;
 
   /* ================= FORM ================= */
-  if (step === "form") {
-    return (
-      <div style={container}>
-        <div style={card}>
+  /* ================= FORM ================= */
+if (step === "form") {
+  return (
+    <div style={container}>
+      <div style={card}>
 
-          <div style={header}>
-            <h2 style={title}>Build Your Skill Profile</h2>
-            <span style={stepText}>Step 2 of 3</span>
-          </div>
+        <div style={header}>
+          <h2 style={title}>Build Your Skill Profile</h2>
+          <span style={stepText}>Step 2 of 3</span>
+        </div>
 
-          <div style={progressContainer}>
-            <div style={progressFill}></div>
-          </div>
+        <div style={progressContainer}>
+          <div style={progressFill}></div>
+        </div>
 
-          <div style={inputRow}>
+        <div style={inputRow}>
+
+          {/* AUTOCOMPLETE */}
+          <div style={{ position: "relative", flex: 1 }}>
             <input
               value={skill}
-              onChange={(e) => setSkill(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addSkill()}
-              placeholder="e.g. Java, React, Python"
+              onChange={(e) => handleSkillChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addSkill();
+                }
+              }}
+              placeholder="Type a skill (e.g. Java, Marketing, Agriculture)"
               style={input}
             />
 
-            <select
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-              style={select}
-            >
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-            </select>
-
-            <button style={addBtn} onClick={addSkill}>
-              Add
-            </button>
-          </div>
-
-          {skills.length === 0 && (
-            <p style={empty}>No skills added yet.</p>
-          )}
-
-          <div>
-            {skills.map((s, i) => (
-              <div key={i} style={skillTag}>
-                {s.skill} • {s.level}
-                <button style={removeBtn} onClick={() => removeSkill(i)}>✕</button>
+            {suggestions.length > 0 && (
+              <div style={dropdown}>
+                {suggestions.map((s, i) => (
+                  <div
+                    key={i}
+                    style={dropdownItem}
+                    onClick={() => {
+                      setSkill(s);
+                      setSuggestions([]);
+                    }}
+                  >
+                    {s}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {skill && suggestions.length === 0 && (
+              <div style={dropdown}>
+                <div style={dropdownItem}>No skills found</div>
+              </div>
+            )}
           </div>
+
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            style={select}
+          >
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+          </select>
 
           <button
-            onClick={findMatches}
-            disabled={loadingMatch || skills.length === 0}
             style={{
-              ...submitBtn,
-              opacity: skills.length === 0 ? 0.5 : 1
+              ...addBtn,
+              opacity: !skill.trim() ? 0.5 : 1
             }}
+            disabled={!skill.trim()}
+            onClick={addSkill}
           >
-            {loadingMatch ? "Matching..." : "Find My Mentor"}
+            Add
           </button>
 
-          <p style={note}>You can update your skills later</p>
-
         </div>
-      </div>
-    );
-  }
 
-  /* ================= MATCH ================= */
-  if (step === "match") {
-    return (
-      <div style={container}>
-        <div style={card}>
+        {skills.length === 0 && (
+          <p style={empty}>No skills added yet.</p>
+        )}
 
-          <div style={header}>
-            <h2 style={title}>Recommended Mentor</h2>
-            <span style={stepText}>Step 3 of 3</span>
-          </div>
-
-          <div style={progressContainer}>
-            <div style={{ ...progressFill, width: "100%" }}></div>
-          </div>
-
-          {matches.length > 0 && (
-            <div style={matchCard}>
-              <h2>{matches[0].name}</h2>
-              <p>{matches[0].score}% Match</p>
+        {/* SKILLS */}
+        <div style={skillsContainer}>
+          {skills.map((s, i) => (
+            <div key={i} style={skillChip}>
+              <span>{s.skill}</span>
+              <span style={levelBadge}>{s.level}</span>
+              <button style={removeBtn} onClick={() => removeSkill(i)}>✕</button>
             </div>
-          )}
-
-          <button style={submitBtn} onClick={confirmMentor}>
-            Confirm Mentor
-          </button>
-
+          ))}
         </div>
-      </div>
-    );
-  }
 
-  /* ================= DONE ================= */
-  if (step === "done") {
-    return (
-      <div style={container}>
-        <div style={{ ...card, textAlign: "center" }}>
-          <h2 style={{ color: "#10b981" }}>🎉 You Are Assigned!</h2>
-          <h1>{assignedMentor.name}</h1>
-          <p>Match Score: {assignedMentor.score}%</p>
-          <p style={note}>Your mentor will contact you soon 🚀</p>
-        </div>
+        <button
+          onClick={findMatches}
+          disabled={loadingMatch || skills.length === 0}
+          style={{
+            ...submitBtn,
+            opacity: skills.length === 0 ? 0.5 : 1
+          }}
+        >
+          {loadingMatch ? "Matching..." : "Find My Mentor"}
+        </button>
+
+        <p style={note}>You can update your skills later</p>
+
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+/* ================= MATCH ================= */
+if (step === "match") {
+  return (
+    <div style={container}>
+      <div style={card}>
+
+        <div style={header}>
+          <h2 style={title}>Recommended Mentor</h2>
+          <span style={stepText}>Step 3 of 3</span>
+        </div>
+
+        <div style={progressContainer}>
+          <div style={{ ...progressFill, width: "100%" }}></div>
+        </div>
+
+        {matches.length > 0 && (
+          <div style={matchCard}>
+
+            <h2>{matches[0].name}</h2>
+
+            <p style={{ fontSize: 18, fontWeight: 600 }}>
+              {matches[0].score}% Match
+            </p>
+
+            {/* 🔥 SCORE BAR */}
+            <div style={scoreBar}>
+              <div
+                style={{
+                  ...scoreFill,
+                  width: `${matches[0].score}%`
+                }}
+              ></div>
+            </div>
+
+            {/* 🔥 WHY THIS MENTOR */}
+            <p style={whyText}>
+              Matches your skills:{" "}
+              {skills.slice(0, 3).map(s => s.skill).join(", ")}
+            </p>
+
+          </div>
+        )}
+
+        <button style={submitBtn} onClick={confirmMentor}>
+          Confirm Mentor
+        </button>
+
+      </div>
+    </div>
+  );
+}
+
+/* ================= DONE ================= */
+if (step === "done") {
+  return (
+    <div style={container}>
+      <div style={{ ...card, textAlign: "center" }}>
+
+        <h2 style={{ color: "#10b981", marginBottom: 10 }}>
+          🎉 Mentor Assigned Successfully!
+        </h2>
+
+        <h1>{assignedMentor.name}</h1>
+
+        <p style={{ fontWeight: 600 }}>
+          Match Score: {assignedMentor.score}%
+        </p>
+
+        <div style={successBox}>
+          <p>📩 Your mentor will contact you shortly via email.</p>
+          <p>⏳ Please check your inbox and spam folder.</p>
+        </div>
+
+        <p style={note}>
+          You can always update your skills later for better matches.
+        </p>
+
+      </div>
+    </div>
+  );
 }
 
 /* ================= STYLES ================= */
@@ -325,4 +527,80 @@ const matchCard = {
   borderRadius: 12,
   textAlign: "center",
   marginBottom: 20
+  
+}
+const dropdown = {
+  position: "absolute",
+  top: "100%",
+  left: 0,
+  right: 0,
+  background: "#fff",
+  border: "1px solid #e2e8f0",
+  borderRadius: 10,
+  marginTop: 5,
+  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  zIndex: 10,
+  maxHeight: 200,
+  overflowY: "auto"
+};
+
+const dropdownItem = {
+  padding: "10px 14px",
+  cursor: "pointer",
+  borderBottom: "1px solid #f1f5f9"
+};
+
+const skillsContainer = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 10,
+  marginTop: 15
+};
+
+const skillChip = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  background: "#f1f5ff",
+  border: "1px solid #dbeafe",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontSize: 14
+};
+
+const levelBadge = {
+  background: "#2563eb",
+  color: "#fff",
+  padding: "2px 6px",
+  borderRadius: 6,
+  fontSize: 11
+};
+const scoreBar = {
+  height: 8,
+  background: "#e5e7eb",
+  borderRadius: 999,
+  marginTop: 10,
+  marginBottom: 10
+};
+
+const scoreFill = {
+  height: "100%",
+  background: "#10b981",
+  borderRadius: 999
+};
+
+const whyText = {
+  fontSize: 13,
+  color: "#475569",
+  marginTop: 10
+};
+
+const successBox = {
+  background: "#ecfdf5",
+  border: "1px solid #10b981",
+  padding: 15,
+  borderRadius: 10,
+  marginTop: 15,
+  color: "#065f46"
+};
 };
