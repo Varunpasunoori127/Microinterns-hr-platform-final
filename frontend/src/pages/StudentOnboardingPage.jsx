@@ -150,22 +150,22 @@ export default function StudentOnboardingPage() {
         return form.dob && /^\d{10,15}$/.test(form.phone);
 
       case 3:
-        return form.nationality; // gender optional
+        return form.nationality && form.gender; // gender optional
 
       case 4:
         return form.address && form.city && form.postcode;
 
       case 5:
-        return form.university && form.course;
+        return form.university && form.course && form.year && form.educationDetails;
 
       case 6:
-        return form.rightToWork;
+        return form.rightToWork && form.workExperience;
 
       case 7:
-        return form.emergencyContactName && form.emergencyContactPhone;
+        return form.emergencyContactName && form.emergencyContactPhone && form.emergencyContactRelation;
 
       case 8:
-        return true;
+        return form.nationalIdNumber && form.passportNumber;
 
       case 9:
      return (
