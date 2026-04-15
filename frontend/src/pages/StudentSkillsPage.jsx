@@ -123,7 +123,7 @@ export default function StudentSkillsPage() {
   "Chemistry", "Physics",
   "Data Collection", "Experiment Design"
 ];
-}
+
   /* ---------- LOAD STUDENT ---------- */
   useEffect(() => {
     if (!token) return;
@@ -417,6 +417,7 @@ if (step === "done") {
       </div>
     </div>
   );
+}
 }
 
 /* ================= STYLES ================= */
